@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { formatPrice } from '@/lib/utils';
-import { Flame, Sparkles, Tag, Loader2 } from 'lucide-react';
+import { Flame, Sparkles, Tag, Loader2, Heart } from 'lucide-react';
 import { Product } from '@/types';
 import { Navigation } from '@/components/Navigation';
 
@@ -37,12 +37,17 @@ export default function FeedPage() {
           randomRes.json(),
         ]);
 
-        setFeedItems([
+        // Combine and deduplicate products by ID
+        const allProducts = [
           ...trending.products,
           ...newItems.products,
           ...editorial.products,
           ...random.products,
-        ]);
+        ];
+        const uniqueProducts = Array.from(
+          new Map(allProducts.map((product) => [product.id, product])).values()
+        );
+        setFeedItems(uniqueProducts);
       } else {
         const response = await fetch(`/api/products?filter=${filter}&count=20`);
         if (response.ok) {
@@ -58,96 +63,95 @@ export default function FeedPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center pb-16 lg:pb-0 lg:pl-72">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-600" />
+      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center pb-16 lg:pb-0 lg:pl-72">
+        <Loader2 className="h-8 w-8 animate-spin text-[#1A1A1A]" />
       </div>
     );
   }
 
   return (
     <>
-    <div className="min-h-screen bg-gray-50 pb-16 lg:pb-0 lg:pl-72">
-      <div className="lg:px-8 lg:py-8 p-6">
+    <div className="min-h-screen bg-[#FAFAFA] pb-16 lg:pb-0 lg:pl-72">
+      <div className="lg:px-6 lg:py-6 p-4">
         {/* Desktop Header */}
-        <div className="hidden lg:block mb-8 bg-white rounded-3xl p-8 border border-gray-200">
-          <h1 className="text-4xl font-black text-gray-900">Fashion Feed</h1>
-          <p className="text-gray-600 mt-2">Trending styles curated for you</p>
+        <div className="hidden lg:block mb-6">
+          <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">Most Popular</h1>
+          <p className="text-sm text-[#6B6B6B]">Trending styles curated for you</p>
         </div>
 
         {/* Mobile Header */}
-        <h1 className="lg:hidden text-3xl font-bold mb-6">Your Feed</h1>
+        <div className="lg:hidden mb-4">
+          <h1 className="text-xl font-bold text-[#1A1A1A] mb-1">Most Popular</h1>
+          <p className="text-xs text-[#6B6B6B]">Trending styles</p>
+        </div>
 
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-          <Button
-            variant={filter === 'all' ? 'default' : 'outline'}
+        {/* Filter Buttons */}
+        <div className="mb-6 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <button
             onClick={() => setFilter('all')}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-all whitespace-nowrap ${
+              filter === 'all' 
+                ? 'bg-[#1A1A1A] text-white' 
+                : 'bg-white text-[#6B6B6B] border border-[#E5E5E5] hover:bg-[#FAFAFA]'
+            }`}
           >
             All
-          </Button>
-          <Button
-            variant={filter === 'trending' ? 'default' : 'outline'}
+          </button>
+          <button
             onClick={() => setFilter('trending')}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              filter === 'trending' 
+                ? 'bg-[#1A1A1A] text-white' 
+                : 'bg-white text-[#6B6B6B] border border-[#E5E5E5] hover:bg-[#FAFAFA]'
+            }`}
           >
-            <Flame className="mr-2 h-4 w-4" />
+            <Flame className="h-3.5 w-3.5" />
             Trending
-          </Button>
-          <Button
-            variant={filter === 'new' ? 'default' : 'outline'}
+          </button>
+          <button
             onClick={() => setFilter('new')}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              filter === 'new' 
+                ? 'bg-[#1A1A1A] text-white' 
+                : 'bg-white text-[#6B6B6B] border border-[#E5E5E5] hover:bg-[#FAFAFA]'
+            }`}
           >
-            <Tag className="mr-2 h-4 w-4" />
-            New Arrivals
-          </Button>
-          <Button
-            variant={filter === 'editorial' ? 'default' : 'outline'}
+            <Tag className="h-3.5 w-3.5" />
+            New
+          </button>
+          <button
             onClick={() => setFilter('editorial')}
+            className={`rounded-lg px-4 py-2 text-sm font-medium transition-all flex items-center gap-1.5 whitespace-nowrap ${
+              filter === 'editorial' 
+                ? 'bg-[#1A1A1A] text-white' 
+                : 'bg-white text-[#6B6B6B] border border-[#E5E5E5] hover:bg-[#FAFAFA]'
+            }`}
           >
-            <Sparkles className="mr-2 h-4 w-4" />
-            Editor's Pick
-          </Button>
+            <Sparkles className="h-3.5 w-3.5" />
+            Editorial
+          </button>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
           {feedItems.map((item) => (
-            <Card key={item.id} className="overflow-hidden hover:shadow-lg transition cursor-pointer group">
+            <div key={item.id} className="group relative rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all cursor-pointer">
               <div className="relative aspect-[3/4]">
                 <Image
                   src={item.imageUrl}
                   alt={item.name}
                   fill
-                  className="object-cover group-hover:scale-105 transition"
+                  className="object-cover"
                 />
-                {item.trending && (
-                  <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                    <Flame className="h-3 w-3" />
-                    Trending
+                <button className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+                  <Heart className="h-4 w-4 text-[#1A1A1A]" />
+                </button>
                   </div>
-                )}
-                {item.isNew && (
-                  <div className="absolute top-2 left-2 bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                    New
+              <div className="p-3">
+                <p className="text-sm text-[#1A1A1A] font-medium mb-1 line-clamp-1">{item.name}</p>
+                <p className="text-xs text-[#6B6B6B] mb-1">{item.brand}</p>
+                <p className="text-base font-bold text-[#1A1A1A]">{formatPrice(item.price, item.currency)}</p>
                   </div>
-                )}
-                {item.isEditorial && (
-                  <div className="absolute top-2 left-2 bg-purple-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center gap-1">
-                    <Sparkles className="h-3 w-3" />
-                    Editor's Pick
-                  </div>
-                )}
-                <Button
-                  size="icon"
-                  variant="secondary"
-                  className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition"
-                >
-                  <Heart className="h-4 w-4" />
-                </Button>
               </div>
-              <CardContent className="p-3">
-                <h3 className="font-semibold text-sm mb-1 line-clamp-1">{item.name}</h3>
-                <p className="text-xs text-gray-600 mb-1">{item.brand}</p>
-                <p className="font-bold text-sm">{formatPrice(item.price, item.currency)}</p>
-              </CardContent>
-            </Card>
           ))}
         </div>
       </div>

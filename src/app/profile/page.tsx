@@ -344,40 +344,42 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-600" />
+      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[#1A1A1A]" />
       </div>
     );
   }
 
   return (
     <>
-    <div className="min-h-screen bg-gray-50 p-6 pb-24 lg:pb-8 lg:pl-72">
-      <div className="lg:px-8 lg:py-8 max-w-6xl space-y-6">
+    <div className="min-h-screen bg-[#FAFAFA] p-4 pb-24 lg:pb-8 lg:pl-72">
+      <div className="lg:px-6 lg:py-6 max-w-6xl space-y-4">
         {/* Desktop Header */}
-        <div className="hidden lg:flex items-center justify-between mb-8 bg-white rounded-3xl p-8 border border-gray-200">
+        <div className="hidden lg:flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-4xl font-black text-gray-900">Profile & Settings</h1>
-            <p className="text-gray-600 mt-2">Manage your account and preferences</p>
+            <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">Profile & Settings</h1>
+            <p className="text-sm text-[#6B6B6B]">Manage your account and preferences</p>
           </div>
           <UserButton afterSignOutUrl="/" />
         </div>
 
         {/* Mobile Header */}
-        <div className="lg:hidden flex items-center justify-between">
-          <h1 className="text-3xl font-bold">Profile & Settings</h1>
+        <div className="lg:hidden flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-xl font-bold text-[#1A1A1A] mb-1">Profile</h1>
+            <p className="text-xs text-[#6B6B6B]">Settings</p>
+          </div>
           <UserButton afterSignOutUrl="/" />
         </div>
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>My Photos</CardTitle>
-                <CardDescription>Manage your photos for virtual try-on (max 5 photos)</CardDescription>
-              </div>
+        <div className="bg-white rounded-xl shadow-sm border border-[#E5E5E5] p-4">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-lg font-bold text-[#1A1A1A] mb-1">My Photos</h2>
+              <p className="text-xs text-[#6B6B6B]">Manage your photos for virtual try-on (max 5 photos)</p>
+            </div>
               {profile?.photos && profile.photos.length < 5 && (
-                <label>
+                <label className="inline-flex items-center gap-2 rounded-lg bg-white border border-[#E5E5E5] px-3 py-2 text-xs font-medium text-[#1A1A1A] hover:bg-[#FAFAFA] transition-colors cursor-pointer">
                   <input
                     type="file"
                     multiple
@@ -386,29 +388,26 @@ export default function ProfilePage() {
                     className="hidden"
                     disabled={uploading}
                   />
-                  <Button disabled={uploading} size="sm">
-                    {uploading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="mr-2 h-4 w-4" />
-                        Add Photos
-                      </>
-                    )}
-                  </Button>
+                  {uploading ? (
+                    <>
+                      <Loader2 className="h-3 w-3 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-3 w-3" />
+                      Add Photos
+                    </>
+                  )}
                 </label>
               )}
-            </div>
-          </CardHeader>
-          <CardContent>
+          </div>
+          <div>
             {(!profile?.photos || profile.photos.length === 0) ? (
               <div className="text-center py-12">
-                <Camera className="mx-auto h-16 w-16 text-gray-300 mb-4" />
-                <p className="text-gray-500 mb-4">No photos yet. Upload photos for virtual try-on.</p>
-                <label>
+                <Camera className="mx-auto h-16 w-16 text-[#E5E5E5] mb-4" />
+                <p className="text-[#6B6B6B] mb-4">No photos yet. Upload photos for virtual try-on.</p>
+                <label className="inline-flex items-center gap-2 rounded-lg bg-[#1A1A1A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#2A2A2A] transition-colors cursor-pointer disabled:opacity-50">
                   <input
                     type="file"
                     multiple
@@ -417,26 +416,24 @@ export default function ProfilePage() {
                     className="hidden"
                     disabled={uploading}
                   />
-                  <Button disabled={uploading}>
-                    {uploading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="mr-2 h-4 w-4" />
-                        Upload Your First Photo
-                      </>
-                    )}
-                  </Button>
+                  {uploading ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="h-4 w-4" />
+                      Upload Your First Photo
+                    </>
+                  )}
                 </label>
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {profile.photos.map((photo) => (
-                    <div key={photo.id} className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-200 group">
+                    <div key={photo.id} className="relative aspect-square rounded-xl overflow-hidden border border-[#E5E5E5] group">
                       <img
                         src={photo.url}
                         alt="Profile photo"
@@ -447,14 +444,14 @@ export default function ProfilePage() {
                           console.log('🖱️ [PROFILE] Delete button clicked for:', photo.id);
                           handleRemovePhoto(photo.id);
                         }}
-                        className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition hover:bg-red-600 z-10"
+                        className="absolute top-2 right-2 bg-white text-[#1A1A1A] rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition hover:scale-110 z-10 shadow-sm"
                         title="Delete photo"
                       >
-                        <X className="h-4 w-4" />
+                        <X className="h-3 w-3" />
                       </button>
 
                       {/* Replace photo */}
-                      <label className="absolute top-2 left-2 bg-white/80 text-gray-900 text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition cursor-pointer z-10">
+                      <label className="absolute top-2 left-2 bg-white/90 text-[#1A1A1A] text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition cursor-pointer z-10">
                         Replace
                         <input
                           type="file"
@@ -469,23 +466,23 @@ export default function ProfilePage() {
                       </label>
 
                       {photo.isPrimary ? (
-                        <div className="absolute bottom-2 left-2 bg-blue-500 text-white text-xs px-2 py-1 rounded">
+                        <div className="absolute bottom-2 left-2 bg-[#1A1A1A] text-white text-xs px-2 py-1 rounded-lg font-medium">
                           ⭐ Primary
                         </div>
                       ) : (
                         <button
                           onClick={() => handleSetPrimary(photo.id)}
-                          className="absolute bottom-2 left-2 bg-gray-900/70 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition hover:bg-gray-900"
+                          className="absolute bottom-2 left-2 bg-white/90 text-[#1A1A1A] text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition hover:bg-white"
                           title="Set as primary"
                         >
-                          Set as Primary
+                          Set Primary
                         </button>
                       )}
                     </div>
                   ))}
                   
                   {profile.photos.length < 5 && (
-                    <label className="aspect-square border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center hover:border-primary hover:bg-gray-50 transition cursor-pointer">
+                    <label className="aspect-square border-2 border-dashed border-[#E5E5E5] rounded-xl flex flex-col items-center justify-center hover:border-[#1A1A1A] hover:bg-[#FAFAFA] transition cursor-pointer">
                       <input
                         type="file"
                         multiple
@@ -496,124 +493,134 @@ export default function ProfilePage() {
                       />
                       {uploading ? (
                         <>
-                          <Loader2 className="h-8 w-8 text-gray-400 animate-spin mb-2" />
-                          <span className="text-xs text-gray-500">Uploading...</span>
+                          <Loader2 className="h-8 w-8 text-[#6B6B6B] animate-spin mb-2" />
+                          <span className="text-xs text-[#6B6B6B]">Uploading...</span>
                         </>
                       ) : (
                         <>
-                          <Camera className="h-8 w-8 text-gray-400 mb-2" />
-                          <span className="text-xs text-gray-500">Add Photo</span>
+                          <Camera className="h-8 w-8 text-[#6B6B6B] mb-2" />
+                          <span className="text-xs text-[#6B6B6B]">Add Photo</span>
                         </>
                       )}
                     </label>
                   )}
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-[#6B6B6B]">
                   💡 Tip: Hover over photos to delete or set as primary. You can upload up to {5 - profile.photos.length} more photo{5 - profile.photos.length !== 1 ? 's' : ''}.
                 </p>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Style Preferences</CardTitle>
-            <CardDescription>Update your sizing and preferences</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div className="bg-white rounded-xl shadow-sm border border-[#E5E5E5] p-4">
+          <h2 className="text-lg font-bold text-[#1A1A1A] mb-1">Style Preferences</h2>
+          <p className="text-xs text-[#6B6B6B] mb-4">Update your sizing and preferences</p>
+          <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="topSize">Top Size</Label>
+                <Label htmlFor="topSize" className="text-xs font-medium text-[#1A1A1A]">Top Size</Label>
                 <Input
                   id="topSize"
                   value={preferences.topSize}
                   onChange={(e) => setPreferences({ ...preferences, topSize: e.target.value })}
                   placeholder="S, M, L, XL"
-                  className="mt-2"
+                  className="mt-2 rounded-lg border border-[#E5E5E5] focus:border-[#1A1A1A]"
                 />
               </div>
               <div>
-                <Label htmlFor="bottomSize">Bottom Size</Label>
+                <Label htmlFor="bottomSize" className="text-xs font-medium text-[#1A1A1A]">Bottom Size</Label>
                 <Input
                   id="bottomSize"
                   value={preferences.bottomSize}
                   onChange={(e) => setPreferences({ ...preferences, bottomSize: e.target.value })}
                   placeholder="28, 30, 32"
-                  className="mt-2"
+                  className="mt-2 rounded-lg border border-[#E5E5E5] focus:border-[#1A1A1A]"
                 />
               </div>
             </div>
             <div>
-              <Label>Budget Range</Label>
+              <Label className="text-xs font-medium text-[#1A1A1A]">Budget Range</Label>
               <div className="grid grid-cols-2 gap-4 mt-2">
                 <Input
                   value={preferences.budgetMin}
                   onChange={(e) => setPreferences({ ...preferences, budgetMin: e.target.value })}
                   placeholder="Min ($)"
                   type="number"
+                  className="rounded-lg border border-[#E5E5E5] focus:border-[#1A1A1A]"
                 />
                 <Input
                   value={preferences.budgetMax}
                   onChange={(e) => setPreferences({ ...preferences, budgetMax: e.target.value })}
                   placeholder="Max ($)"
                   type="number"
+                  className="rounded-lg border border-[#E5E5E5] focus:border-[#1A1A1A]"
                 />
               </div>
             </div>
-            <Button onClick={handleSavePreferences} disabled={saving}>
+            <button 
+              onClick={handleSavePreferences} 
+              disabled={saving} 
+              className="rounded-lg bg-[#1A1A1A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#2A2A2A] transition-colors disabled:opacity-50"
+            >
               {saving ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="inline mr-2 h-3 w-3 animate-spin" />
                   Saving...
                 </>
               ) : (
                 'Save Changes'
               )}
-            </Button>
-          </CardContent>
-        </Card>
+            </button>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <Bell className="inline mr-2 h-5 w-5" />
-              Notifications
-            </CardTitle>
-            <CardDescription>Manage your notification preferences</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
+        <div className="bg-white rounded-xl shadow-sm border border-[#E5E5E5] p-4">
+          <h2 className="text-lg font-bold text-[#1A1A1A] mb-1 flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            Notifications
+          </h2>
+          <p className="text-xs text-[#6B6B6B] mb-4">Manage your notification preferences</p>
+          <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">Email notifications</p>
-                <p className="text-sm text-gray-600">Receive emails about new trends</p>
+                <p className="text-sm font-medium text-[#1A1A1A]">Email notifications</p>
+                <p className="text-xs text-[#6B6B6B]">Receive emails about new trends</p>
               </div>
-              <Button variant="outline" size="sm">Toggle</Button>
+              <button className="rounded-lg bg-white border border-[#E5E5E5] px-3 py-1.5 text-xs font-medium text-[#1A1A1A] hover:bg-[#FAFAFA] transition-colors">
+                Toggle
+              </button>
             </div>
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">Push notifications</p>
-                <p className="text-sm text-gray-600">Get notified about new recommendations</p>
+                <p className="text-sm font-medium text-[#1A1A1A]">Push notifications</p>
+                <p className="text-xs text-[#6B6B6B]">Get notified about new recommendations</p>
               </div>
-              <Button variant="outline" size="sm">Toggle</Button>
+              <button className="rounded-lg bg-white border border-[#E5E5E5] px-3 py-1.5 text-xs font-medium text-[#1A1A1A] hover:bg-[#FAFAFA] transition-colors">
+                Toggle
+              </button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <Shield className="inline mr-2 h-5 w-5" />
-              Account
-            </CardTitle>
-            <CardDescription>Manage your account settings</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Button variant="outline" className="w-full">Change Password</Button>
-            <Button variant="outline" className="w-full">Download My Data</Button>
-            <Button variant="destructive" className="w-full">Delete Account</Button>
-          </CardContent>
-        </Card>
+        <div className="bg-white rounded-xl shadow-sm border border-[#E5E5E5] p-4">
+          <h2 className="text-lg font-bold text-[#1A1A1A] mb-1 flex items-center gap-2">
+            <Shield className="h-4 w-4" />
+            Account
+          </h2>
+          <p className="text-xs text-[#6B6B6B] mb-4">Manage your account settings</p>
+          <div className="space-y-2">
+            <button className="w-full rounded-lg bg-white border border-[#E5E5E5] px-4 py-2.5 text-sm font-medium text-[#1A1A1A] hover:bg-[#FAFAFA] transition-colors text-left">
+              Change Password
+            </button>
+            <button className="w-full rounded-lg bg-white border border-[#E5E5E5] px-4 py-2.5 text-sm font-medium text-[#1A1A1A] hover:bg-[#FAFAFA] transition-colors text-left">
+              Download My Data
+            </button>
+            <button className="w-full rounded-lg bg-white border border-red-200 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors text-left">
+              Delete Account
+            </button>
+          </div>
+        </div>
       </div>
     </div>
     <Navigation />

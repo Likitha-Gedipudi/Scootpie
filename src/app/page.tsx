@@ -33,12 +33,12 @@ export default async function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-indigo-100 via-purple-50 to-pink-50">
+    <div className="min-h-screen bg-[#FAFAFA]">
       {/* Header */}
       <header className="absolute top-0 right-0 p-6 z-10">
         <Link
           href="/sign-up"
-          className="rounded-full bg-white px-8 py-3 text-base font-semibold text-gray-900 shadow-sm hover:shadow-md transition-all hover:scale-105"
+          className="rounded-lg bg-[#1A1A1A] px-6 py-2.5 text-sm font-medium text-white hover:bg-[#2A2A2A] transition-colors"
         >
           Sign up
         </Link>
@@ -49,44 +49,44 @@ export default async function Home() {
         {/* Logo Icon */}
         <div className="mb-8 flex justify-center">
           <div className="relative">
-            <div className="h-20 w-20 rounded-3xl bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center shadow-xl">
-              <Sparkles className="h-10 w-10 text-white" />
+            <div className="h-16 w-16 rounded-2xl bg-[#1A1A1A] flex items-center justify-center">
+              <Sparkles className="h-8 w-8 text-white" />
             </div>
           </div>
         </div>
 
         {/* Title */}
-        <h1 className="mb-4 text-7xl font-serif font-normal tracking-tight text-gray-900">
+        <h1 className="mb-4 text-6xl font-bold text-[#1A1A1A]">
           Vesaki
         </h1>
-        <p className="text-xl text-gray-700 mb-12">
+        <p className="text-lg text-[#6B6B6B] mb-12">
           Your personal AI fashion agent
         </p>
 
         {/* Gender Toggle */}
-        <div className="mb-8 inline-flex rounded-full bg-white p-1 shadow-lg">
-          <button className="rounded-full px-8 py-3 text-sm font-medium text-gray-700 transition-all hover:bg-gray-100">
+        <div className="mb-8 inline-flex rounded-lg bg-white p-1 shadow-sm border border-[#E5E5E5]">
+          <button className="rounded-md px-6 py-2.5 text-sm font-medium text-[#6B6B6B] transition-all hover:bg-[#FAFAFA]">
             Womens
           </button>
-          <button className="rounded-full bg-gray-900 px-8 py-3 text-sm font-medium text-white transition-all">
+          <button className="rounded-md bg-[#1A1A1A] px-6 py-2.5 text-sm font-medium text-white transition-all">
             Mens
           </button>
         </div>
 
         {/* Search Box */}
         <div className="mx-auto max-w-2xl mb-16">
-          <div className="relative rounded-3xl bg-white p-2 shadow-xl">
-            <div className="flex items-center gap-4 rounded-2xl border-2 border-transparent focus-within:border-indigo-500 transition-all">
-              <button className="pl-4">
-                <ImageIcon className="h-5 w-5 text-gray-400" />
+          <div className="relative rounded-xl bg-white p-3 shadow-sm border border-[#E5E5E5]">
+            <div className="flex items-center gap-3">
+              <button className="pl-2">
+                <ImageIcon className="h-5 w-5 text-[#6B6B6B]" />
               </button>
               <input
                 type="text"
-                placeholder="Describe what you're shopping for..."
-                className="flex-1 py-4 text-base text-gray-900 placeholder-gray-400 focus:outline-none"
+                placeholder="Search product..."
+                className="flex-1 py-2 text-base text-[#1A1A1A] placeholder-[#9B9B9B] focus:outline-none"
               />
-              <button className="mr-2 rounded-full bg-indigo-600 p-3 text-white hover:bg-indigo-700 transition-all hover:scale-110 shadow-lg">
-                <ArrowUp className="h-5 w-5" />
+              <button className="mr-2 rounded-lg bg-[#1A1A1A] p-2.5 text-white hover:bg-[#2A2A2A] transition-colors">
+                <ArrowUp className="h-4 w-4" />
               </button>
             </div>
           </div>
@@ -94,49 +94,39 @@ export default async function Home() {
 
         {/* Trending Section */}
         <div className="text-left">
-          <div className="mb-6 flex items-center gap-2 text-gray-900">
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-            </svg>
-            <h2 className="text-lg font-semibold">Trending</h2>
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-xl font-bold text-[#1A1A1A]">Most Popular</h2>
           </div>
 
           {/* Trending Cards */}
           <div className="relative">
-            <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide">
+            <div className="grid grid-cols-2 gap-4">
               {trendingItems.map((item, index) => (
                 <Link
                   key={index}
                   href="/sign-up"
-                  className="group relative flex-shrink-0 w-64 h-80 rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl transition-all hover:scale-105"
+                  className="group relative flex-shrink-0 rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition-all"
                 >
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    fill
-                    className="object-cover"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 right-0 p-6">
-                    <h3 className="text-lg font-bold text-white leading-tight">
-                      {item.title}
-                    </h3>
+                  <div className="relative aspect-[3/4]">
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      fill
+                      className="object-cover"
+                    />
+                    <button className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
+                      <svg className="w-4 h-4 text-[#1A1A1A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                    </button>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-sm text-[#1A1A1A] font-medium mb-1 line-clamp-1">{item.title}</p>
+                    <p className="text-base font-bold text-[#1A1A1A]">$120.00</p>
                   </div>
                 </Link>
               ))}
             </div>
-
-            {/* Scroll Arrows */}
-            <button className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 rounded-full bg-white p-2 shadow-lg hover:scale-110 transition-all">
-              <svg className="h-6 w-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 rounded-full bg-white p-2 shadow-lg hover:scale-110 transition-all">
-              <svg className="h-6 w-6 text-gray-900" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
           </div>
         </div>
       </div>

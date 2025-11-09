@@ -12,7 +12,9 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "db:check": "tsx scripts/check-db.ts",
+    "db:create-users": "tsx scripts/create-users-table.ts"
   },
   "keywords": [],
   "author": "",
@@ -36,6 +38,7 @@
     "lucide-react": "^0.552.0",
     "next": "^16.0.1",
     "postcss": "^8.5.6",
+    "postgres": "^3.4.7",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwind-merge": "^3.3.1",

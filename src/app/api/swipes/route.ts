@@ -24,12 +24,23 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
+    // Validate sessionId is a valid UUID format, generate new one if invalid
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    let validSessionId = sessionId;
+    
+    if (!sessionId || !uuidRegex.test(sessionId)) {
+      // Generate a new UUID if the provided one is invalid
+      const { randomUUID } = await import('crypto');
+      validSessionId = randomUUID();
+      console.warn(`Invalid sessionId provided: ${sessionId}. Generated new UUID: ${validSessionId}`);
+    }
+
     // Save swipe to database
     await db.insert(swipes).values({
       userId: user.id,
       productId,
       direction: direction as 'left' | 'right' | 'up',
-      sessionId,
+      sessionId: validSessionId,
       cardPosition,
     });
 

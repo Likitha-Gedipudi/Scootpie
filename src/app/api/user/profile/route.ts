@@ -17,9 +17,12 @@ export async function POST(req: NextRequest) {
     const { name, preferences, photoUrls, primaryPhotoIndex } = body;
 
     // Check if user already exists
-    const existingUser = await db.query.users.findFirst({
-      where: eq(users.clerkId, userId),
-    });
+    // Using select instead of query API for better error handling
+    const [existingUser] = await db
+      .select()
+      .from(users)
+      .where(eq(users.clerkId, userId))
+      .limit(1);
 
     let dbUser;
 
@@ -86,15 +89,43 @@ export async function POST(req: NextRequest) {
     });
   } catch (error) {
     console.error('Error creating profile:', error);
-    console.error('Error details:', {
-      message: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined,
-      error: error,
-    });
+    
+    // Extract more detailed error information
+    let errorMessage = 'Unknown error';
+    let errorDetails: any = {};
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      errorDetails = {
+        message: error.message,
+        name: error.name,
+        stack: error.stack,
+      };
+      
+      // Check if it's a database error
+      if ('code' in error) {
+        errorDetails.code = (error as any).code;
+      }
+      if ('severity' in error) {
+        errorDetails.severity = (error as any).severity;
+      }
+      if ('detail' in error) {
+        errorDetails.detail = (error as any).detail;
+      }
+      if ('hint' in error) {
+        errorDetails.hint = (error as any).hint;
+      }
+    }
+    
+    // Log the full error object for debugging
+    console.error('Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    console.error('Error details:', errorDetails);
+    
     return NextResponse.json(
       { 
         error: 'Failed to create profile',
-        details: error instanceof Error ? error.message : 'Unknown error'
+        details: errorMessage,
+        ...(process.env.NODE_ENV === 'development' && { errorDetails }),
       },
       { status: 500 }
     );
@@ -109,22 +140,68 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const user = await db.query.users.findFirst({
-      where: eq(users.clerkId, userId),
-      with: {
-        photos: true,
-      },
-    });
+    // Get user with photos
+    const [user] = await db
+      .select()
+      .from(users)
+      .where(eq(users.clerkId, userId))
+      .limit(1);
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ user });
+    // Get user's photos separately
+    const userPhotos = await db
+      .select()
+      .from(photos)
+      .where(eq(photos.userId, user.id));
+
+    const userWithPhotos = {
+      ...user,
+      photos: userPhotos,
+    };
+
+    return NextResponse.json({ user: userWithPhotos });
   } catch (error) {
     console.error('Error fetching profile:', error);
+    
+    // Extract more detailed error information
+    let errorMessage = 'Unknown error';
+    let errorDetails: any = {};
+    
+    if (error instanceof Error) {
+      errorMessage = error.message;
+      errorDetails = {
+        message: error.message,
+        name: error.name,
+        stack: error.stack,
+      };
+      
+      // Check if it's a database error
+      if ('code' in error) {
+        errorDetails.code = (error as any).code;
+      }
+      if ('severity' in error) {
+        errorDetails.severity = (error as any).severity;
+      }
+      if ('detail' in error) {
+        errorDetails.detail = (error as any).detail;
+      }
+      if ('hint' in error) {
+        errorDetails.hint = (error as any).hint;
+      }
+    }
+    
+    console.error('Full error object:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    console.error('Error details:', errorDetails);
+    
     return NextResponse.json(
-      { error: 'Failed to fetch profile' },
+      { 
+        error: 'Failed to fetch profile',
+        details: errorMessage,
+        ...(process.env.NODE_ENV === 'development' && { errorDetails }),
+      },
       { status: 500 }
     );
   }

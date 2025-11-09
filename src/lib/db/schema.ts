@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, timestamp, boolean, text, decimal, integer, jsonb, vector } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, timestamp, boolean, text, decimal, integer, jsonb, vector, unique } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 export const users = pgTable('users', {
@@ -100,7 +100,9 @@ export const tryOnCache = pgTable('try_on_cache', {
   generatedImageUrl: text('generated_image_url').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   expiresAt: timestamp('expires_at').notNull(),
-});
+}, (table) => ({
+  uniqueUserPhotoProduct: unique().on(table.userId, table.photoId, table.productId),
+}));
 
 export const userStyleProfiles = pgTable('user_style_profiles', {
   userId: uuid('user_id').primaryKey().references(() => users.id, { onDelete: 'cascade' }),

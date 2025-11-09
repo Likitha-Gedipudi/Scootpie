@@ -4,7 +4,11 @@ import { ClerkProvider } from '@clerk/nextjs';
 import './globals.css';
 import { Providers } from './providers';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+});
 
 export const metadata: Metadata = {
   title: 'Vesaki - AI Personal Shopping Assistant',
@@ -19,7 +23,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={inter.className} suppressHydrationWarning>
+        <body className={`${inter.variable} font-sans`} suppressHydrationWarning>
           <Providers>{children}</Providers>
         </body>
       </html>

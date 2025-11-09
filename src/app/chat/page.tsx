@@ -54,28 +54,30 @@ export default function ChatPage() {
 
   return (
     <>
-    <div className="flex flex-col h-screen bg-gray-50 pb-16 lg:pb-0 lg:pl-72">
+    <div className="flex flex-col h-screen bg-[#FAFAFA] pb-16 lg:pb-0 lg:pl-72">
       {/* Desktop Header */}
-      <div className="hidden lg:flex items-center gap-4 px-8 py-6 bg-white border-b border-gray-200">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-yellow-400 via-pink-500 to-purple-600">
-          <Bot className="h-7 w-7 text-white" />
+      <div className="hidden lg:flex items-center gap-3 px-6 py-6">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1A1A1A]">
+          <Bot className="h-5 w-5 text-white" />
         </div>
         <div>
-          <h1 className="text-3xl font-black text-gray-900">AI Stylist</h1>
-          <p className="text-sm text-gray-600">Your personal fashion assistant</p>
+          <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">AI Stylist</h1>
+          <p className="text-sm text-[#6B6B6B]">Your personal fashion assistant</p>
         </div>
       </div>
 
       {/* Mobile Header */}
-      <div className="lg:hidden flex items-center gap-3 px-6 py-4 bg-white shadow-sm">
-        <Bot className="h-8 w-8 text-primary" />
+      <div className="lg:hidden flex items-center gap-3 px-4 py-4">
+        <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1A1A1A]">
+          <Bot className="h-4 w-4 text-white" />
+        </div>
         <div>
-          <h1 className="text-xl font-bold">AI Stylist</h1>
-          <p className="text-sm text-gray-600">Your personal fashion assistant</p>
+          <h1 className="text-xl font-bold text-[#1A1A1A]">AI Stylist</h1>
+          <p className="text-xs text-[#6B6B6B]">Fashion assistant</p>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-6 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((message) => (
           <div
             key={message.id}
@@ -83,25 +85,23 @@ export default function ChatPage() {
           >
             {message.role === 'assistant' && (
               <div className="flex-shrink-0">
-                <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
-                  <Bot className="h-6 w-6 text-white" />
+                <div className="h-9 w-9 rounded-full bg-[#1A1A1A] flex items-center justify-center">
+                  <Bot className="h-4 w-4 text-white" />
                 </div>
               </div>
             )}
-            <Card className={`max-w-[70%] ${message.role === 'user' ? 'bg-primary text-white' : ''}`}>
-              <CardContent className="p-4">
-                <p className={message.role === 'user' ? 'text-white' : 'text-gray-800'}>
+            <div className={`max-w-[70%] rounded-xl p-3 shadow-sm ${message.role === 'user' ? 'bg-[#1A1A1A] text-white' : 'bg-white border border-[#E5E5E5]'}`}>
+              <p className={message.role === 'user' ? 'text-white text-sm' : 'text-[#1A1A1A] text-sm'}>
                   {message.content}
                 </p>
-                <p className={`text-xs mt-2 ${message.role === 'user' ? 'text-white/70' : 'text-gray-500'}`}>
+              <p className={`text-xs mt-1.5 ${message.role === 'user' ? 'text-white/70' : 'text-[#6B6B6B]'}`}>
                   {message.timestamp.toLocaleTimeString()}
                 </p>
-              </CardContent>
-            </Card>
+            </div>
             {message.role === 'user' && (
               <div className="flex-shrink-0">
-                <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                  <User className="h-6 w-6 text-gray-600" />
+                <div className="h-9 w-9 rounded-full bg-white border border-[#E5E5E5] flex items-center justify-center">
+                  <User className="h-4 w-4 text-[#1A1A1A]" />
                 </div>
               </div>
             )}
@@ -111,35 +111,39 @@ export default function ChatPage() {
         {isTyping && (
           <div className="flex gap-3">
             <div className="flex-shrink-0">
-              <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center">
-                <Bot className="h-6 w-6 text-white" />
+              <div className="h-9 w-9 rounded-full bg-[#1A1A1A] flex items-center justify-center">
+                <Bot className="h-4 w-4 text-white" />
               </div>
             </div>
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex gap-2">
-                  <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce"></div>
-                  <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                  <div className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+            <div className="rounded-xl shadow-sm bg-white border border-[#E5E5E5] p-3">
+              <div className="flex gap-1.5">
+                <div className="w-1.5 h-1.5 rounded-full bg-[#6B6B6B] animate-bounce"></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-[#6B6B6B] animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-1.5 h-1.5 rounded-full bg-[#6B6B6B] animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+              </div>
                 </div>
-              </CardContent>
-            </Card>
           </div>
         )}
       </div>
 
-      <div className="p-6 bg-white border-t">
+      <div className="p-4 border-t border-[#E5E5E5] bg-white">
         <div className="max-w-4xl mx-auto flex gap-2">
-          <Input
+          <input
+            type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && handleSend()}
             placeholder="Ask me anything about fashion..."
-            className="flex-1"
+            className="flex-1 rounded-lg border border-[#E5E5E5] px-4 py-2.5 text-sm text-[#1A1A1A] placeholder-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A] transition-colors bg-white"
+            disabled={isTyping}
           />
-          <Button onClick={handleSend} disabled={!input.trim() || isTyping}>
+          <button 
+            onClick={handleSend} 
+            disabled={!input.trim() || isTyping} 
+            className="rounded-lg bg-[#1A1A1A] p-2.5 text-white hover:bg-[#2A2A2A] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <Send className="h-4 w-4" />
-          </Button>
+          </button>
         </div>
       </div>
     </div>

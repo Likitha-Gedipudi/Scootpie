@@ -96,77 +96,96 @@ export default function CollectionsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-gray-600" />
+      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[#1A1A1A]" />
       </div>
     );
   }
 
   return (
     <>
-    <div className="min-h-screen bg-gray-50 pb-16 lg:pb-0 lg:pl-72">
-      <div className="lg:px-8 lg:py-8 p-6">
+    <div className="min-h-screen bg-[#FAFAFA] pb-16 lg:pb-0 lg:pl-72">
+      <div className="lg:px-6 lg:py-6 p-4">
         {/* Desktop Header */}
-        <div className="hidden lg:block mb-8 bg-white rounded-3xl p-8 border border-gray-200">
-          <div className="flex items-center justify-between">
+        <div className="hidden lg:block mb-6">
+          <div className="flex items-center justify-between mb-4">
             <div>
-              <h1 className="text-4xl font-black text-gray-900">My Collections</h1>
-              <p className="text-gray-600 mt-2">Organize your favorite fashion finds</p>
+              <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">My Collections</h1>
+              <p className="text-sm text-[#6B6B6B]">Organize your favorite fashion finds</p>
             </div>
-            <Button onClick={() => setShowNewCollection(true)} className="rounded-full px-6 py-6 text-base">
-              <Plus className="mr-2 h-5 w-5" />
+            <button 
+              onClick={() => setShowNewCollection(true)} 
+              className="rounded-lg bg-[#1A1A1A] px-4 py-2 text-sm font-medium text-white hover:bg-[#2A2A2A] transition-colors flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
               New Collection
-            </Button>
+            </button>
           </div>
         </div>
 
         {/* Mobile Header */}
-        <div className="lg:hidden flex items-center justify-between mb-8">
-          <h1 className="text-3xl font-bold">My Collections</h1>
-          <Button onClick={() => setShowNewCollection(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            New Collection
-          </Button>
+        <div className="lg:hidden flex items-center justify-between mb-4">
+          <div>
+            <h1 className="text-xl font-bold text-[#1A1A1A] mb-1">Collections</h1>
+            <p className="text-xs text-[#6B6B6B]">Your favorites</p>
+          </div>
+          <button 
+            onClick={() => setShowNewCollection(true)} 
+            className="rounded-lg bg-[#1A1A1A] px-3 py-2 text-sm font-medium text-white"
+          >
+            <Plus className="h-4 w-4" />
+          </button>
         </div>
 
         {showNewCollection && (
-          <Card className="mb-6">
-            <CardContent className="pt-6">
+          <div className="mb-6 bg-white rounded-xl p-4 shadow-sm border border-[#E5E5E5]">
               <div className="flex gap-2">
-                <Input
+              <input
+                type="text"
                   placeholder="Collection name"
                   value={newCollectionName}
                   onChange={(e) => setNewCollectionName(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && createCollection()}
+                className="flex-1 rounded-lg border border-[#E5E5E5] px-4 py-2 text-sm text-[#1A1A1A] placeholder-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A] transition-colors"
                 />
-                <Button onClick={createCollection}>Create</Button>
-                <Button variant="outline" onClick={() => setShowNewCollection(false)}>
+              <button 
+                onClick={createCollection} 
+                className="rounded-lg bg-[#1A1A1A] px-4 py-2 text-sm font-medium text-white hover:bg-[#2A2A2A] transition-colors"
+              >
+                Create
+              </button>
+              <button 
+                onClick={() => setShowNewCollection(false)} 
+                className="rounded-lg bg-white border border-[#E5E5E5] px-4 py-2 text-sm font-medium text-[#6B6B6B] hover:bg-[#FAFAFA] transition-colors"
+              >
                   Cancel
-                </Button>
+              </button>
+            </div>
               </div>
-            </CardContent>
-          </Card>
         )}
 
-        <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        <div className="mb-6 flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           {collections.map((collection) => (
-            <Button
+            <button
               key={collection.id}
-              variant={selectedCollection.id === collection.id ? 'default' : 'outline'}
               onClick={() => setSelectedCollection(collection)}
-              className="whitespace-nowrap"
+              className={`rounded-lg px-4 py-2 text-sm font-medium transition-all whitespace-nowrap flex items-center gap-1.5 ${
+                selectedCollection?.id === collection.id
+                  ? 'bg-[#1A1A1A] text-white'
+                  : 'bg-white text-[#6B6B6B] border border-[#E5E5E5] hover:bg-[#FAFAFA]'
+              }`}
             >
-              {collection.isDefault && <Heart className="mr-2 h-4 w-4" />}
+              {collection.isDefault && <Heart className="h-3.5 w-3.5" />}
               {collection.name}
-              <span className="ml-2 text-xs">({collection.items.length})</span>
-            </Button>
+              <span className="text-xs opacity-75">({collection.items.length})</span>
+            </button>
           ))}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {selectedCollection?.items.map((item) => (
-            <Card key={item.id} className="overflow-hidden hover:shadow-lg transition">
-              <div className="relative h-80">
+            <div key={item.id} className="group relative rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all bg-white">
+              <div className="relative aspect-[3/4]">
                 <Image
                   src={item.product.imageUrl}
                   alt={item.product.name}
@@ -174,32 +193,38 @@ export default function CollectionsPage() {
                   className="object-cover"
                 />
               </div>
-              <CardContent className="p-4">
-                <h3 className="font-semibold text-lg mb-1">{item.product.name}</h3>
-                <p className="text-sm text-gray-600 mb-2">{item.product.brand}</p>
-                <div className="flex items-center justify-between mb-4">
-                  <p className="font-bold text-lg">{formatPrice(item.product.price, item.product.currency)}</p>
-                  <p className="text-sm text-gray-500">{item.product.retailer}</p>
+              <div className="p-3">
+                <p className="text-sm text-[#1A1A1A] font-medium mb-1 line-clamp-1">{item.product.name}</p>
+                <p className="text-xs text-[#6B6B6B] mb-1">{item.product.brand}</p>
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-base font-bold text-[#1A1A1A]">{formatPrice(item.product.price, item.product.currency)}</p>
+                  <p className="text-xs text-[#6B6B6B]">{item.product.retailer}</p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="flex-1" onClick={() => window.open(item.product.productUrl, '_blank')}>
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    Buy Now
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={() => removeItem(selectedCollection.id, item.id)}>
-                    <Trash2 className="h-4 w-4 text-red-500" />
-                  </Button>
+                  <button 
+                    className="flex-1 rounded-lg bg-white border border-[#E5E5E5] px-3 py-2 text-xs font-medium text-[#1A1A1A] hover:bg-[#FAFAFA] transition-colors flex items-center justify-center gap-1"
+                    onClick={() => window.open(item.product.productUrl, '_blank')}
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    Buy
+                  </button>
+                  <button 
+                    className="rounded-lg bg-white border border-[#E5E5E5] p-2 hover:bg-[#FAFAFA] transition-colors"
+                    onClick={() => removeItem(selectedCollection.id, item.id)}
+                  >
+                    <Trash2 className="h-4 w-4 text-[#1A1A1A]" />
+                  </button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+                </div>
           ))}
         </div>
 
         {selectedCollection && selectedCollection.items.length === 0 && (
-          <div className="text-center py-16">
-            <Heart className="mx-auto h-16 w-16 text-gray-300 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">No items yet</h3>
-            <p className="text-gray-500">
+          <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-[#E5E5E5]">
+            <Heart className="mx-auto h-16 w-16 text-[#E5E5E5] mb-4" />
+            <h3 className="text-lg font-bold text-[#1A1A1A] mb-2">No items yet</h3>
+            <p className="text-[#6B6B6B]">
               Start swiping to add items to this collection
             </p>
           </div>

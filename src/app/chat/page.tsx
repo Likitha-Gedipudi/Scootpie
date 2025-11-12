@@ -236,23 +236,38 @@ if (Array.isArray(data.messages)) {
 
   return (
     <>
-    <div className="flex flex-col h-screen bg-[#FAFAFA] pb-16 lg:pb-0 lg:pl-72">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-white via-[#8B5CF6]/5 to-white pb-16 lg:pb-0 lg:pl-56 relative">
+      {/* Noise Background - Fixed */}
+      <div className="fixed inset-0 pointer-events-none z-0 lg:left-56">
+        <svg className="w-full h-full opacity-65" xmlns="http://www.w3.org/2000/svg">
+          <filter id="noise-chat">
+            <feTurbulence type="fractalNoise" baseFrequency="0.80" numOctaves="4" stitchTiles="stitch"/>
+            <feColorMatrix type="saturate" values="0"/>
+          </filter>
+          <rect width="100%" height="100%" filter="url(#noise-chat)"/>
+        </svg>
+      </div>
+      
+      {/* Floating Gradient Orbs - Fixed */}
+      <div className="fixed top-20 right-10 w-72 h-72 bg-[#8B5CF6]/10 rounded-full blur-3xl animate-pulse pointer-events-none z-0 lg:left-[calc(224px+10rem)]"></div>
+      <div className="fixed bottom-20 left-10 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl animate-pulse pointer-events-none z-0 lg:left-[calc(224px+2.5rem)]" style={{animationDelay: '1s'}}></div>
+      
       {/* Desktop Header */}
-      <div className="hidden lg:flex items-center justify-between px-6 py-6 border-b border-[#E5E5E5]">
+      <div className="hidden lg:flex items-center justify-between h-14 px-6 border-b border-gray-200 bg-white relative z-20">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1A1A1A]">
+          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#1A1A1A]">
             <Bot className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">AI Stylist</h1>
-            <p className="text-sm text-[#6B6B6B]">Your personal fashion assistant</p>
+            <h1 className="text-3xl font-serif font-bold text-[#1A1A1A] mb-1 tracking-[-0.04em]">AI Stylist</h1>
+            <p className="text-sm text-[#5A5A5A] font-light">Your personal fashion assistant</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <select
             value={conversationId || ''}
             onChange={(e) => e.target.value ? loadConversation(e.target.value) : undefined}
-            className="px-3 py-2 text-sm border border-[#E5E5E5] rounded-lg bg-white text-[#1A1A1A]"
+            className="px-3 py-2 text-sm border border-[#E8E8E6] rounded-full bg-white text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/10 focus:border-[#1A1A1A] transition-all shadow-sm"
           >
             <option value="">Select chat…</option>
             {conversations.map((c) => (
@@ -262,7 +277,7 @@ if (Array.isArray(data.messages)) {
           {conversationId && (
             <button
               onClick={handleDeleteConversation}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg border border-[#E5E5E5] bg-white hover:bg-[#FAFAFA] transition-colors text-sm text-[#B00020]"
+              className="flex items-center gap-2 px-3 py-2 rounded-full border border-[#E8E8E6] bg-white hover:bg-[#FAFAF8] transition-all text-sm text-[#B00020] shadow-sm"
               title="Delete current chat"
             >
               <Trash2 className="h-4 w-4" />
@@ -270,7 +285,7 @@ if (Array.isArray(data.messages)) {
           )}
           <button
             onClick={handleNewChat}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#E5E5E5] bg-white hover:bg-[#FAFAFA] transition-colors text-sm font-medium text-[#1A1A1A]"
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-[#E8E8E6] bg-white hover:bg-[#FAFAF8] transition-all text-sm font-medium text-[#1A1A1A] shadow-sm"
           >
             <RotateCcw className="h-4 w-4" />
             New Chat
@@ -279,21 +294,21 @@ if (Array.isArray(data.messages)) {
       </div>
 
       {/* Mobile Header */}
-      <div className="lg:hidden flex items-center justify-between px-4 py-4 border-b border-[#E5E5E5]">
+      <div className="lg:hidden flex items-center justify-between px-4 py-4 border-b border-gray-200/50 bg-white/80 backdrop-blur-xl relative z-20">
         <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#1A1A1A]">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#1A1A1A]">
             <Bot className="h-4 w-4 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-[#1A1A1A]">AI Stylist</h1>
-            <p className="text-xs text-[#6B6B6B]">Fashion assistant</p>
+            <h1 className="text-2xl font-serif font-bold text-[#1A1A1A] tracking-[-0.04em]">AI Stylist</h1>
+            <p className="text-xs text-[#5A5A5A] font-light">Fashion assistant</p>
           </div>
         </div>
         <div className="flex items-center gap-1.5">
           <select
             value={conversationId || ''}
             onChange={(e) => e.target.value ? loadConversation(e.target.value) : undefined}
-            className="px-2 py-1.5 text-xs border border-[#E5E5E5] rounded-lg bg-white text-[#1A1A1A]"
+            className="px-2 py-1.5 text-xs border border-[#E8E8E6] rounded-full bg-white text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/10 focus:border-[#1A1A1A] transition-all shadow-sm"
           >
             <option value="">Chats…</option>
             {conversations.map((c) => (
@@ -302,7 +317,7 @@ if (Array.isArray(data.messages)) {
           </select>
           <button
             onClick={handleNewChat}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[#E5E5E5] bg-white hover:bg-[#FAFAFA] transition-colors text-xs font-medium text-[#1A1A1A]"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#E8E8E6] bg-white hover:bg-[#FAFAF8] transition-all text-xs font-medium text-[#1A1A1A] shadow-sm"
           >
             <RotateCcw className="h-3.5 w-3.5" />
             New
@@ -310,7 +325,7 @@ if (Array.isArray(data.messages)) {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6">
+      <div className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-4 lg:space-y-6 relative z-20">
         {messages.map((message) => (
           <div
             key={message.id}
@@ -323,20 +338,20 @@ if (Array.isArray(data.messages)) {
                 </div>
               </div>
             )}
-            <div className={`max-w-[85%] lg:max-w-[70%] rounded-2xl p-4 ${message.role === 'user' ? 'bg-[#1A1A1A] text-white shadow-sm' : 'bg-white border border-[#E5E5E5] shadow-sm'}`}>
+            <div className={`max-w-[85%] lg:max-w-[70%] rounded-xl p-4 ${message.role === 'user' ? 'bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] text-white shadow-md' : 'bg-white/90 backdrop-blur-sm border border-gray-200 shadow-md'}`}>
               <p className={`text-sm leading-relaxed ${message.role === 'user' ? 'text-white' : 'text-[#1A1A1A]'}`}>
                 {message.content}
               </p>
               
               {/* Try-on outfit image - larger and more prominent */}
               {message.role === 'assistant' && message.outfitImage && (
-                <div className="mt-4 overflow-hidden rounded-xl border border-[#E5E5E5] bg-gradient-to-br from-[#FAFAFA] to-[#F5F5F5] p-2">
+                <div className="mt-4 overflow-hidden rounded-lg border border-[#E8E8E6] bg-gradient-to-br from-[#FAFAF8] to-[#F5F5F3] p-2">
                   <div className="relative w-full" style={{ aspectRatio: '3/4', maxHeight: '500px' }}>
                     <Image
                       src={message.outfitImage}
                       alt="Your virtual try-on"
                       fill
-                      className="object-contain rounded-lg"
+                      className="object-contain rounded-xl"
                       priority
                     />
                   </div>
@@ -346,7 +361,7 @@ if (Array.isArray(data.messages)) {
               {/* Product cards - improved design */}
               {message.role === 'assistant' && message.products && message.products.length > 0 && (
                 <div className="mt-4 space-y-2">
-                  <p className="text-xs font-medium text-[#6B6B6B] uppercase tracking-wide">Items in this outfit</p>
+                  <p className="text-xs font-medium text-[#5A5A5A] uppercase tracking-wide font-light">Items in this outfit</p>
                   <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
                     {message.products.map((p, idx) => (
                       <a
@@ -354,9 +369,9 @@ if (Array.isArray(data.messages)) {
                         href={p.productUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="group flex-shrink-0 w-[160px] border border-[#E5E5E5] rounded-xl overflow-hidden bg-white hover:shadow-md hover:border-[#1A1A1A] transition-all"
+                        className="group flex-shrink-0 w-[160px] border border-[#E8E8E6] rounded-lg overflow-hidden bg-white hover:shadow-lg hover:border-[#1A1A1A] transition-all shadow-sm"
                       >
-                        <div className="relative w-full h-[140px] bg-[#FAFAFA]">
+                        <div className="relative w-full h-[140px] bg-[#FAFAF8]">
                           <Image
                             src={p.imageUrl}
                             alt={p.name}
@@ -365,7 +380,7 @@ if (Array.isArray(data.messages)) {
                           />
                         </div>
                         <div className="p-3 space-y-1">
-                          <div className="text-xs font-medium text-[#6B6B6B] truncate">{p.brand || p.retailer}</div>
+                          <div className="text-xs font-medium text-[#5A5A5A] truncate font-light">{p.brand || p.retailer}</div>
                           <div className="text-sm font-semibold text-[#1A1A1A] line-clamp-2 leading-snug">{p.name}</div>
                           {p.price && p.price > 0 && (
                             <div className="text-sm font-bold text-[#1A1A1A]">
@@ -382,13 +397,13 @@ if (Array.isArray(data.messages)) {
                 </div>
               )}
               
-              <p suppressHydrationWarning className={`text-xs mt-3 ${message.role === 'user' ? 'text-white/60' : 'text-[#9B9B9B]'}`}>
+              <p suppressHydrationWarning className={`text-xs mt-3 ${message.role === 'user' ? 'text-white/60' : 'text-[#8A8A8A]'} font-light`}>
                 {new Date(message.timestamp).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}
               </p>
             </div>
             {message.role === 'user' && (
               <div className="flex-shrink-0">
-                <div className="h-9 w-9 rounded-full bg-white border border-[#E5E5E5] flex items-center justify-center">
+                <div className="h-9 w-9 rounded-full bg-white border border-[#E8E8E6] flex items-center justify-center shadow-sm">
                   <User className="h-4 w-4 text-[#1A1A1A]" />
                 </div>
               </div>
@@ -403,11 +418,11 @@ if (Array.isArray(data.messages)) {
                 <Bot className="h-4 w-4 text-white" />
               </div>
             </div>
-            <div className="rounded-2xl shadow-sm bg-white border border-[#E5E5E5] p-4">
+            <div className="rounded-xl shadow-md bg-white border border-[#E8E8E6] p-4">
               <div className="flex gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-[#6B6B6B] animate-bounce"></div>
-                <div className="w-2 h-2 rounded-full bg-[#6B6B6B] animate-bounce" style={{ animationDelay: '0.2s' }}></div>
-                <div className="w-2 h-2 rounded-full bg-[#6B6B6B] animate-bounce" style={{ animationDelay: '0.4s' }}></div>
+                <div className="w-2 h-2 rounded-full bg-[#8A8A8A] animate-bounce"></div>
+                <div className="w-2 h-2 rounded-full bg-[#8A8A8A] animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                <div className="w-2 h-2 rounded-full bg-[#8A8A8A] animate-bounce" style={{ animationDelay: '0.4s' }}></div>
               </div>
             </div>
           </div>
@@ -415,21 +430,21 @@ if (Array.isArray(data.messages)) {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 lg:p-6 border-t border-[#E5E5E5] bg-white shadow-lg">
+      <div className="p-4 lg:p-6 border-t border-gray-200/50 bg-white/80 backdrop-blur-xl shadow-lg relative z-20">
         <div className="max-w-4xl mx-auto">
           {/* Current outfit indicator */}
           {getCurrentOutfit().length > 0 && (
-            <div className="mb-3 p-3 bg-gradient-to-r from-[#F5F5F5] to-[#FAFAFA] rounded-lg border border-[#E5E5E5]">
+            <div className="mb-3 p-3 bg-gradient-to-r from-[#FAFAF8] to-[#F5F5F3] rounded-lg border border-[#E8E8E6]">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="text-xs font-semibold text-[#6B6B6B] uppercase tracking-wide">Current Outfit ({getCurrentOutfit().length} {getCurrentOutfit().length === 1 ? 'item' : 'items'})</div>
+                  <div className="text-xs font-semibold text-[#5A5A5A] uppercase tracking-wide font-light">Current Outfit ({getCurrentOutfit().length} {getCurrentOutfit().length === 1 ? 'item' : 'items'})</div>
                 </div>
                 <div className="flex gap-1.5 flex-wrap">
                   {getCurrentOutfit().slice(0, 5).map((item, idx) => (
-                    <span key={idx} className="inline-flex items-center gap-1 px-2 py-1 bg-white rounded-md text-xs font-medium text-[#1A1A1A] border border-[#E5E5E5]">
+                    <span key={idx} className="inline-flex items-center gap-1 px-2 py-1 bg-white rounded-full text-xs font-medium text-[#1A1A1A] border border-[#E8E8E6] shadow-sm">
                       {item.brand || item.retailer}
                       {getCurrentOutfit().length > 5 && idx === 4 && (
-                        <span className="text-[#6B6B6B]">+{getCurrentOutfit().length - 5}</span>
+                        <span className="text-[#5A5A5A]">+{getCurrentOutfit().length - 5}</span>
                       )}
                     </span>
                   ))}
@@ -444,15 +459,25 @@ if (Array.isArray(data.messages)) {
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && !e.shiftKey && handleSend()}
             placeholder="Add to your outfit (e.g., 'black jeans from H&M', 'Nike sneakers')"
-            className="flex-1 rounded-xl border-2 border-[#E5E5E5] px-4 py-3 text-sm text-[#1A1A1A] placeholder-[#9B9B9B] focus:outline-none focus:border-[#1A1A1A] focus:ring-2 focus:ring-[#1A1A1A]/10 transition-all bg-white"
+            className="flex-1 rounded-full border-2 border-[#E8E8E6] px-4 py-3 text-sm text-[#1A1A1A] placeholder-[#8A8A8A] focus:outline-none focus:border-[#1A1A1A] focus:ring-2 focus:ring-[#1A1A1A]/10 transition-all bg-white shadow-sm"
             disabled={isTyping}
           />
           <button 
             onClick={handleSend} 
             disabled={!input.trim() || isTyping} 
-            className="rounded-xl bg-[#1A1A1A] px-4 py-3 text-white hover:bg-[#2A2A2A] active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="relative rounded-xl bg-gradient-to-r from-[#8B5CF6]/90 to-[#7C3AED]/90 px-4 py-3 text-white active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-xl overflow-hidden group"
+            style={{
+              background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.9), rgba(124, 58, 237, 0.9))',
+            }}
           >
-            <Send className="h-5 w-5" />
+            <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              style={{
+                background: 'linear-gradient(90deg, #8B5CF6, #7C3AED, #8B5CF6)',
+                backgroundSize: '200% 100%',
+                animation: 'shimmer 2s linear infinite'
+              }}
+            ></div>
+            <Send className="h-5 w-5 relative z-10" />
           </button>
           </div>
         </div>

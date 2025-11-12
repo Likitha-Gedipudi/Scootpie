@@ -38,3 +38,7 @@ drizzle/
 
 # clerk configuration (can include secrets)
 /.clerk/
+
+# markdown files (except README.md)
+*.md
+!README.md

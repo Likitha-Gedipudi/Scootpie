@@ -124,3 +124,14 @@ h1, h2, h3, h4, h5, h6 {
 .gradient-rose {
   background: linear-gradient(135deg, #F5CDD1 0%, #E8B4B8 100%);
 }
+
+/* Star Border Animation - Shimmer Effect */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes borderAnimation {
+  0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.5); }
+}

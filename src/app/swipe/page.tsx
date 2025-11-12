@@ -263,42 +263,88 @@ export default function SwipePage() {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-[#FAF8F5] via-[#F5F1E8] to-[#FAF8F5]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#8B1A1A] mx-auto mb-4"></div>
-          <p className="text-lg text-[#6B6459] tracking-wide">Loading your personalized recommendations...</p>
+      <>
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-white via-[#8B5CF6]/5 to-white pb-16 lg:pb-0 lg:pl-56 relative overflow-hidden">
+        {/* Noise Background */}
+        <svg className="absolute inset-0 w-full h-full opacity-65 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+          <filter id="noise-swipe-loading">
+            <feTurbulence type="fractalNoise" baseFrequency="0.80" numOctaves="4" stitchTiles="stitch"/>
+            <feColorMatrix type="saturate" values="0"/>
+          </filter>
+          <rect width="100%" height="100%" filter="url(#noise-swipe-loading)"/>
+        </svg>
+        <div className="text-center relative z-10">
+          <Loader2 className="h-8 w-8 animate-spin text-[#8B5CF6] mx-auto mb-4" />
+          <p className="text-lg text-gray-700 font-light">Loading your personalized recommendations...</p>
         </div>
       </div>
+      <Navigation />
+      </>
     );
   }
 
   if (!hasPhoto) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-[#FAF8F5] via-[#F5F1E8] to-[#FAF8F5] pb-16 lg:pb-0 lg:pl-72">
-        <div className="text-center max-w-md px-4">
-          <div className="bg-white shadow-luxury-lg border border-[#D9D0C1] p-8">
-            <h2 className="text-2xl font-serif font-bold text-[#1C1410] mb-3 tracking-wide">No Photos Found</h2>
-            <p className="text-[#6B6459] mb-6 tracking-wide">Please upload at least one photo to enable virtual try-on.</p>
+      <>
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-white via-[#8B5CF6]/5 to-white pb-16 lg:pb-0 lg:pl-56 relative overflow-hidden">
+        {/* Noise Background */}
+        <svg className="absolute inset-0 w-full h-full opacity-65 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+          <filter id="noise-swipe-nophoto">
+            <feTurbulence type="fractalNoise" baseFrequency="0.80" numOctaves="4" stitchTiles="stitch"/>
+            <feColorMatrix type="saturate" values="0"/>
+          </filter>
+          <rect width="100%" height="100%" filter="url(#noise-swipe-nophoto)"/>
+        </svg>
+        <div className="text-center max-w-md px-4 relative z-10">
+          <div className="bg-white/90 backdrop-blur-sm rounded-xl shadow-xl border border-gray-200 p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-3">No Photos Found</h2>
+            <p className="text-gray-600 mb-6 font-light">Please upload at least one photo to enable virtual try-on.</p>
             <a 
               href="/profile" 
-              className="inline-block bg-gradient-to-r from-[#8B1A1A] to-[#5C1010] px-8 py-3 text-sm font-semibold text-[#FAF8F5] hover:from-[#5C1010] hover:to-[#8B1A1A] transition-all duration-300 shadow-luxury uppercase tracking-widest border border-[#D4AF37]/20"
+              className="relative inline-flex bg-gradient-to-r from-[#8B5CF6]/90 to-[#7C3AED]/90 px-6 py-2.5 text-sm font-medium text-white rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 overflow-hidden group transition-all"
+              style={{
+                background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.9), rgba(124, 58, 237, 0.9))',
+              }}
             >
-              Upload Photos
+              <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{
+                  background: 'linear-gradient(90deg, #8B5CF6, #7C3AED, #8B5CF6)',
+                  backgroundSize: '200% 100%',
+                  animation: 'shimmer 2s linear infinite'
+                }}
+              ></div>
+              <span className="relative z-10">Upload Photos</span>
             </a>
           </div>
         </div>
       </div>
+      <Navigation />
+      </>
     );
   }
 
   return (
     <>
-    <div className="flex flex-col h-screen bg-gradient-to-br from-[#FAF8F5] via-[#F5F1E8] to-[#FAF8F5] pb-16 lg:pb-0 lg:pl-72">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-white via-[#8B5CF6]/5 to-white pb-16 lg:pb-0 lg:pl-56 relative">
+      {/* Noise Background - Fixed positioning */}
+      <div className="fixed inset-0 pointer-events-none z-0 lg:left-56">
+        <svg className="w-full h-full opacity-65" xmlns="http://www.w3.org/2000/svg">
+          <filter id="noise-swipe">
+            <feTurbulence type="fractalNoise" baseFrequency="0.80" numOctaves="4" stitchTiles="stitch"/>
+            <feColorMatrix type="saturate" values="0"/>
+          </filter>
+          <rect width="100%" height="100%" filter="url(#noise-swipe)"/>
+        </svg>
+      </div>
+      
+      {/* Floating Gradient Orbs - Fixed positioning */}
+      <div className="fixed top-20 right-10 w-72 h-72 bg-[#8B5CF6]/10 rounded-full blur-3xl animate-pulse pointer-events-none z-0 lg:left-[calc(224px+10rem)]"></div>
+      <div className="fixed bottom-20 left-10 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl animate-pulse pointer-events-none z-0 lg:left-[calc(224px+2.5rem)]" style={{animationDelay: '1s'}}></div>
+      
       {/* Desktop Header */}
-      <div className="hidden lg:flex items-center justify-between px-8 py-8 border-b border-[#D9D0C1] bg-white/50 backdrop-blur-sm">
-        <div className="flex-1 pr-6">
-          <h1 className="text-3xl font-serif font-bold text-[#1C1410] mb-2 tracking-wide">Discover Fashion</h1>
-          <p className="text-sm text-[#6B6459] tracking-wide">Swipe to curate your style</p>
+      <div className="hidden lg:flex items-center justify-between h-14 px-6 border-b border-gray-200 bg-white relative z-10 shrink-0">
+        <div>
+          <h1 className="text-lg font-semibold">Discover Fashion</h1>
         </div>
         <div className="flex items-center gap-3">
           <form
@@ -312,27 +358,37 @@ export default function SwipePage() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search luxury fashion..."
-              className="border border-[#D9D0C1] bg-white/90 px-4 py-2 text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#8B1A1A] focus:border-[#D4AF37]/50 transition-all"
+              placeholder="Search fashion..."
+              className="border border-[#E8E8E6] bg-white px-4 py-2 text-sm text-[#1A1A1A] placeholder-[#8A8A8A] rounded-full focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/10 focus:border-[#1A1A1A] transition-all"
             />
             <button
               type="submit"
-              className="bg-gradient-to-r from-[#8B1A1A] to-[#5C1010] px-5 py-2 text-sm font-semibold text-[#FAF8F5] hover:from-[#5C1010] hover:to-[#8B1A1A] transition-all duration-300 shadow-luxury uppercase tracking-widest border border-[#D4AF37]/20"
+              className="relative bg-gradient-to-r from-[#8B5CF6]/90 to-[#7C3AED]/90 px-5 py-2 text-sm font-medium text-white rounded-xl shadow-md hover:shadow-lg overflow-hidden group"
+              style={{
+                background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.9), rgba(124, 58, 237, 0.9))',
+              }}
             >
-              Search
+              <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{
+                  background: 'linear-gradient(90deg, #8B5CF6, #7C3AED, #8B5CF6)',
+                  backgroundSize: '200% 100%',
+                  animation: 'shimmer 2s linear infinite'
+                }}
+              ></div>
+              <span className="relative z-10">Search</span>
             </button>
           </form>
-          <div className="bg-white/90 border border-[#D9D0C1] px-5 py-2.5 text-sm font-medium text-[#1C1410] shadow-luxury tracking-wide">
+          <div className="bg-white border border-[#E8E8E6] px-5 py-2.5 text-sm font-medium text-[#1A1A1A] rounded-full shadow-sm">
             {remainingCards} remaining
           </div>
         </div>
       </div>
 
       {/* Mobile Header */}
-      <div className="lg:hidden px-4 py-4 space-y-3 border-b border-[#D9D0C1] bg-white/50 backdrop-blur-sm">
+      <div className="lg:hidden px-4 py-4 space-y-3 border-b border-gray-200/50 bg-white/80 backdrop-blur-xl relative z-10 shrink-0">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-serif font-bold text-[#1C1410] tracking-wide">Discover</h1>
-          <div className="bg-white/90 border border-[#D9D0C1] px-3 py-2 text-xs font-semibold text-[#1C1410] shadow-luxury uppercase tracking-wider">
+          <h1 className="text-2xl font-serif font-bold text-[#1A1A1A] tracking-[-0.04em]">Discover</h1>
+          <div className="bg-white border border-[#E8E8E6] px-3 py-2 text-xs font-medium text-[#1A1A1A] rounded-full shadow-sm">
             {remainingCards} left
           </div>
         </div>
@@ -348,18 +404,28 @@ export default function SwipePage() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search fashion"
-            className="flex-1 border border-[#D9D0C1] bg-white/90 px-4 py-2 text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#8B1A1A] focus:border-[#D4AF37]/50 transition-all"
+            className="flex-1 border border-[#E8E8E6] bg-white px-4 py-2 text-sm text-[#1A1A1A] placeholder-[#8A8A8A] rounded-full focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]/10 focus:border-[#1A1A1A] transition-all"
           />
           <button
             type="submit"
-            className="bg-gradient-to-r from-[#8B1A1A] to-[#5C1010] px-4 py-2 text-xs font-semibold text-[#FAF8F5] hover:from-[#5C1010] hover:to-[#8B1A1A] transition-all duration-300 shadow-luxury uppercase tracking-widest border border-[#D4AF37]/20"
+            className="relative bg-gradient-to-r from-[#8B5CF6]/90 to-[#7C3AED]/90 px-4 py-2 text-xs font-medium text-white rounded-xl shadow-md overflow-hidden group"
+            style={{
+              background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.9), rgba(124, 58, 237, 0.9))',
+            }}
           >
-            Go
+            <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              style={{
+                background: 'linear-gradient(90deg, #8B5CF6, #7C3AED, #8B5CF6)',
+                backgroundSize: '200% 100%',
+                animation: 'shimmer 2s linear infinite'
+              }}
+            ></div>
+            <span className="relative z-10">Go</span>
           </button>
         </form>
       </div>
 
-      <div className="flex-1 relative px-4 py-8 lg:max-w-xl lg:mx-auto w-full">
+      <div className="flex-1 relative flex items-center justify-center px-4 py-6 w-full z-10 min-h-0">
         <AnimatePresence>
           {currentProduct && (
             <motion.div
@@ -367,7 +433,7 @@ export default function SwipePage() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className="absolute inset-0"
+              className="w-full max-w-md mx-auto"
             >
               <SwipeCard
                 product={currentProduct}
@@ -383,32 +449,42 @@ export default function SwipePage() {
 
         {!currentProduct && (
           <div className="flex flex-col items-center justify-center h-full">
-            <RotateCcw className="h-16 w-16 text-[#6B6459] mb-4" />
-            <h2 className="text-2xl font-serif font-bold text-[#1C1410] mb-3 tracking-wide">No more items</h2>
-            <p className="text-[#6B6459] mb-8 tracking-wide">You've seen all available items</p>
+            <RotateCcw className="h-16 w-16 text-[#8A8A8A] mb-4" />
+            <h2 className="text-2xl font-serif font-bold text-[#1A1A1A] mb-3 tracking-[-0.02em]">No more items</h2>
+            <p className="text-[#5A5A5A] mb-8 font-light">You've seen all available items</p>
             <button 
               onClick={() => loadProducts(query)} 
-              className="bg-gradient-to-r from-[#8B1A1A] to-[#5C1010] px-8 py-3 text-sm font-semibold text-[#FAF8F5] hover:from-[#5C1010] hover:to-[#8B1A1A] transition-all duration-300 shadow-luxury uppercase tracking-widest border border-[#D4AF37]/20"
+              className="relative bg-gradient-to-r from-[#8B5CF6]/90 to-[#7C3AED]/90 px-6 py-2.5 text-sm font-medium text-white rounded-xl shadow-lg hover:shadow-xl overflow-hidden group"
+              style={{
+                background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.9), rgba(124, 58, 237, 0.9))',
+              }}
             >
-              Load More
+              <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{
+                  background: 'linear-gradient(90deg, #8B5CF6, #7C3AED, #8B5CF6)',
+                  backgroundSize: '200% 100%',
+                  animation: 'shimmer 2s linear infinite'
+                }}
+              ></div>
+              <span className="relative z-10">Load More</span>
             </button>
           </div>
         )}
       </div>
 
-      <div className="flex items-center justify-center gap-6 pb-8 px-4">
+      <div className="flex items-center justify-center gap-6 pb-6 lg:pb-8 px-4 relative z-10">
         <button
           onClick={() => handleManualSwipe('left')}
           disabled={!currentProduct || isGeneratingTryOn}
-          className="h-14 w-14 rounded-full bg-white/90 border-2 border-[#D9D0C1] shadow-luxury transition-all hover:shadow-luxury-lg hover:border-[#8B1A1A] disabled:opacity-50 flex items-center justify-center group"
+          className="h-14 w-14 rounded-full bg-white border-2 border-[#E8E8E6] shadow-sm transition-all hover:shadow-md hover:border-[#1A1A1A] disabled:opacity-50 flex items-center justify-center group"
         >
-          <X className="h-6 w-6 text-[#6B6459] group-hover:text-[#8B1A1A] transition-colors" />
+          <X className="h-6 w-6 text-[#8A8A8A] group-hover:text-[#1A1A1A] transition-colors" />
         </button>
         
         <button
           onClick={() => handleManualSwipe('up')}
           disabled={!currentProduct || isGeneratingTryOn}
-          className="h-16 w-16 bg-gradient-to-r from-[#D4AF37] to-[#B8941F] border-2 border-white shadow-luxury-lg transition-all hover:scale-105 disabled:opacity-50 flex items-center justify-center group"
+          className="h-16 w-16 bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] border-2 border-white shadow-lg transition-all hover:scale-105 disabled:opacity-50 flex items-center justify-center group rounded-full"
         >
           <Star className="h-7 w-7 text-white fill-current" />
         </button>
@@ -416,7 +492,7 @@ export default function SwipePage() {
         <button
           onClick={() => handleManualSwipe('right')}
           disabled={!currentProduct || isGeneratingTryOn}
-          className="h-14 w-14 rounded-full bg-gradient-to-r from-[#8B1A1A] to-[#5C1010] border-2 border-[#D4AF37]/30 shadow-luxury transition-all hover:shadow-luxury-lg hover:scale-105 disabled:opacity-50 flex items-center justify-center group"
+          className="h-14 w-14 rounded-full bg-gradient-to-r from-[#8B5CF6] to-[#7C3AED] border-2 border-white shadow-lg transition-all hover:shadow-xl hover:scale-105 disabled:opacity-50 flex items-center justify-center group"
         >
           <Heart className="h-6 w-6 text-white fill-current" />
         </button>

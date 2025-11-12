@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Camera, X, Upload, Loader2, Bell, Shield } from 'lucide-react';
+import { Camera, X, Upload, Loader2 } from 'lucide-react';
 import { Navigation } from '@/components/Navigation';
 import Image from 'next/image';
 
@@ -344,21 +344,45 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#FAFAFA] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-[#1A1A1A]" />
+      <div className="min-h-screen bg-gradient-to-br from-white via-[#8B5CF6]/5 to-white flex items-center justify-center relative overflow-hidden">
+        {/* Noise Background */}
+        <svg className="absolute inset-0 w-full h-full opacity-65 pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+          <filter id="noise-profile-loading">
+            <feTurbulence type="fractalNoise" baseFrequency="0.80" numOctaves="4" stitchTiles="stitch"/>
+            <feColorMatrix type="saturate" values="0"/>
+          </filter>
+          <rect width="100%" height="100%" filter="url(#noise-profile-loading)"/>
+        </svg>
+        <Loader2 className="h-8 w-8 animate-spin text-[#8B5CF6] relative z-10" />
       </div>
     );
   }
 
   return (
     <>
-    <div className="min-h-screen bg-[#FAFAFA] p-4 pb-24 lg:pb-8 lg:pl-72">
+    <div className="min-h-screen bg-gradient-to-br from-white via-[#8B5CF6]/5 to-white p-4 pb-24 lg:pb-8 lg:pl-56 relative">
+      {/* Noise Background - Fixed */}
+      <div className="fixed inset-0 pointer-events-none z-0 lg:left-56">
+        <svg className="w-full h-full opacity-65" xmlns="http://www.w3.org/2000/svg">
+          <filter id="noise-profile">
+            <feTurbulence type="fractalNoise" baseFrequency="0.80" numOctaves="4" stitchTiles="stitch"/>
+            <feColorMatrix type="saturate" values="0"/>
+          </filter>
+          <rect width="100%" height="100%" filter="url(#noise-profile)"/>
+        </svg>
+      </div>
+      
+      {/* Floating Gradient Orbs - Fixed */}
+      <div className="fixed top-20 right-10 w-72 h-72 bg-[#8B5CF6]/10 rounded-full blur-3xl animate-pulse pointer-events-none z-0 lg:left-[calc(224px+10rem)]"></div>
+      <div className="fixed bottom-20 left-10 w-96 h-96 bg-purple-400/10 rounded-full blur-3xl animate-pulse pointer-events-none z-0 lg:left-[calc(224px+2.5rem)]" style={{animationDelay: '1s'}}></div>
+      
+      <div className="relative z-10">
       <div className="lg:px-6 lg:py-6 max-w-6xl space-y-4">
         {/* Desktop Header */}
         <div className="hidden lg:flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">Profile & Settings</h1>
-            <p className="text-sm text-[#6B6B6B]">Manage your account and preferences</p>
+            <h1 className="text-3xl font-serif font-bold text-[#1A1A1A] mb-2 tracking-[-0.04em]">Profile & Settings</h1>
+            <p className="text-sm text-[#5A5A5A] font-light">Manage your account and preferences</p>
           </div>
           <UserButton afterSignOutUrl="/" />
         </div>
@@ -366,20 +390,20 @@ export default function ProfilePage() {
         {/* Mobile Header */}
         <div className="lg:hidden flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-xl font-bold text-[#1A1A1A] mb-1">Profile</h1>
-            <p className="text-xs text-[#6B6B6B]">Settings</p>
+            <h1 className="text-2xl font-serif font-bold text-[#1A1A1A] mb-1 tracking-[-0.04em]">Profile</h1>
+            <p className="text-xs text-[#5A5A5A] font-light">Settings</p>
           </div>
           <UserButton afterSignOutUrl="/" />
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-[#E5E5E5] p-4">
+        <div className="bg-white rounded-xl shadow-md border border-[#E8E8E6] p-4">
           <div className="flex items-center justify-between mb-4">
             <div>
-              <h2 className="text-lg font-bold text-[#1A1A1A] mb-1">My Photos</h2>
-              <p className="text-xs text-[#6B6B6B]">Manage your photos for virtual try-on (max 5 photos)</p>
+              <h2 className="text-lg font-serif font-bold text-[#1A1A1A] mb-1 tracking-[-0.02em]">My Photos</h2>
+              <p className="text-xs text-[#5A5A5A] font-light">Manage your photos for virtual try-on (max 5 photos)</p>
             </div>
               {profile?.photos && profile.photos.length < 5 && (
-                <label className="inline-flex items-center gap-2 rounded-lg bg-white border border-[#E5E5E5] px-3 py-2 text-xs font-medium text-[#1A1A1A] hover:bg-[#FAFAFA] transition-colors cursor-pointer">
+                <label className="inline-flex items-center gap-2 rounded-full bg-white border border-[#E8E8E6] px-3 py-2 text-xs font-medium text-[#1A1A1A] hover:bg-[#FAFAF8] transition-all cursor-pointer shadow-sm">
                   <input
                     type="file"
                     multiple
@@ -405,9 +429,20 @@ export default function ProfilePage() {
           <div>
             {(!profile?.photos || profile.photos.length === 0) ? (
               <div className="text-center py-12">
-                <Camera className="mx-auto h-16 w-16 text-[#E5E5E5] mb-4" />
-                <p className="text-[#6B6B6B] mb-4">No photos yet. Upload photos for virtual try-on.</p>
-                <label className="inline-flex items-center gap-2 rounded-lg bg-[#1A1A1A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#2A2A2A] transition-colors cursor-pointer disabled:opacity-50">
+                <Camera className="mx-auto h-16 w-16 text-[#E8E8E6] mb-4" />
+                <p className="text-[#5A5A5A] mb-4 font-light">No photos yet. Upload photos for virtual try-on.</p>
+                <label className="relative inline-flex items-center gap-2 bg-gradient-to-r from-[#8B5CF6]/90 to-[#7C3AED]/90 px-6 py-2.5 text-sm font-medium text-white rounded-xl cursor-pointer shadow-lg hover:shadow-xl hover:-translate-y-0.5 overflow-hidden group transition-all"
+                  style={{
+                    background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.9), rgba(124, 58, 237, 0.9))',
+                  }}
+                >
+                  <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    style={{
+                      background: 'linear-gradient(90deg, #8B5CF6, #7C3AED, #8B5CF6)',
+                      backgroundSize: '200% 100%',
+                      animation: 'shimmer 2s linear infinite'
+                    }}
+                  ></div>
                   <input
                     type="file"
                     multiple
@@ -418,13 +453,13 @@ export default function ProfilePage() {
                   />
                   {uploading ? (
                     <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Uploading...
+                      <Loader2 className="h-4 w-4 animate-spin relative z-10" />
+                      <span className="relative z-10">Uploading...</span>
                     </>
                   ) : (
                     <>
-                      <Upload className="h-4 w-4" />
-                      Upload Your First Photo
+                      <Upload className="h-4 w-4 relative z-10" />
+                      <span className="relative z-10">Upload Your First Photo</span>
                     </>
                   )}
                 </label>
@@ -433,7 +468,7 @@ export default function ProfilePage() {
               <div className="space-y-4">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {profile.photos.map((photo) => (
-                    <div key={photo.id} className="relative aspect-square rounded-xl overflow-hidden border border-[#E5E5E5] group">
+                    <div key={photo.id} className="relative aspect-square rounded-lg overflow-hidden border border-[#E8E8E6] group shadow-sm">
                       <img
                         src={photo.url}
                         alt="Profile photo"
@@ -444,14 +479,14 @@ export default function ProfilePage() {
                           console.log('🖱️ [PROFILE] Delete button clicked for:', photo.id);
                           handleRemovePhoto(photo.id);
                         }}
-                        className="absolute top-2 right-2 bg-white text-[#1A1A1A] rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition hover:scale-110 z-10 shadow-sm"
+                        className="absolute top-2 right-2 bg-white text-[#1A1A1A] rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition hover:scale-110 z-10 shadow-md border border-[#E8E8E6]"
                         title="Delete photo"
                       >
                         <X className="h-3 w-3" />
                       </button>
 
                       {/* Replace photo */}
-                      <label className="absolute top-2 left-2 bg-white/90 text-[#1A1A1A] text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition cursor-pointer z-10">
+                      <label className="absolute top-2 left-2 bg-white/95 backdrop-blur-sm text-[#1A1A1A] text-xs px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition cursor-pointer z-10 border border-[#E8E8E6] shadow-sm">
                         Replace
                         <input
                           type="file"
@@ -466,13 +501,13 @@ export default function ProfilePage() {
                       </label>
 
                       {photo.isPrimary ? (
-                        <div className="absolute bottom-2 left-2 bg-[#1A1A1A] text-white text-xs px-2 py-1 rounded-lg font-medium">
+                        <div className="absolute bottom-2 left-2 bg-[#1A1A1A] text-white text-xs px-2 py-1 rounded-full font-medium shadow-sm">
                           ⭐ Primary
                         </div>
                       ) : (
                         <button
                           onClick={() => handleSetPrimary(photo.id)}
-                          className="absolute bottom-2 left-2 bg-white/90 text-[#1A1A1A] text-xs px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition hover:bg-white"
+                          className="absolute bottom-2 left-2 bg-white/95 backdrop-blur-sm text-[#1A1A1A] text-xs px-2 py-1 rounded-full opacity-0 group-hover:opacity-100 transition hover:bg-white border border-[#E8E8E6] shadow-sm"
                           title="Set as primary"
                         >
                           Set Primary
@@ -482,7 +517,7 @@ export default function ProfilePage() {
                   ))}
                   
                   {profile.photos.length < 5 && (
-                    <label className="aspect-square border-2 border-dashed border-[#E5E5E5] rounded-xl flex flex-col items-center justify-center hover:border-[#1A1A1A] hover:bg-[#FAFAFA] transition cursor-pointer">
+                    <label className="aspect-square border-2 border-dashed border-[#E8E8E6] rounded-lg flex flex-col items-center justify-center hover:border-[#1A1A1A] hover:bg-[#FAFAF8] transition-all cursor-pointer shadow-sm">
                       <input
                         type="file"
                         multiple
@@ -493,19 +528,19 @@ export default function ProfilePage() {
                       />
                       {uploading ? (
                         <>
-                          <Loader2 className="h-8 w-8 text-[#6B6B6B] animate-spin mb-2" />
-                          <span className="text-xs text-[#6B6B6B]">Uploading...</span>
+                          <Loader2 className="h-8 w-8 text-[#8A8A8A] animate-spin mb-2" />
+                          <span className="text-xs text-[#5A5A5A] font-light">Uploading...</span>
                         </>
                       ) : (
                         <>
-                          <Camera className="h-8 w-8 text-[#6B6B6B] mb-2" />
-                          <span className="text-xs text-[#6B6B6B]">Add Photo</span>
+                          <Camera className="h-8 w-8 text-[#8A8A8A] mb-2" />
+                          <span className="text-xs text-[#5A5A5A] font-light">Add Photo</span>
                         </>
                       )}
                     </label>
                   )}
                 </div>
-                <p className="text-xs text-[#6B6B6B]">
+                <p className="text-xs text-[#5A5A5A] font-light">
                   💡 Tip: Hover over photos to delete or set as primary. You can upload up to {5 - profile.photos.length} more photo{5 - profile.photos.length !== 1 ? 's' : ''}.
                 </p>
               </div>
@@ -513,9 +548,9 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-[#E5E5E5] p-4">
-          <h2 className="text-lg font-bold text-[#1A1A1A] mb-1">Style Preferences</h2>
-          <p className="text-xs text-[#6B6B6B] mb-4">Update your sizing and preferences</p>
+        <div className="bg-white rounded-xl shadow-md border border-[#E8E8E6] p-4">
+          <h2 className="text-lg font-serif font-bold text-[#1A1A1A] mb-1 tracking-[-0.02em]">Style Preferences</h2>
+          <p className="text-xs text-[#5A5A5A] mb-4 font-light">Update your sizing and preferences</p>
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -525,7 +560,7 @@ export default function ProfilePage() {
                   value={preferences.topSize}
                   onChange={(e) => setPreferences({ ...preferences, topSize: e.target.value })}
                   placeholder="S, M, L, XL"
-                  className="mt-2 rounded-lg border border-[#E5E5E5] focus:border-[#1A1A1A]"
+                  className="mt-2 rounded-full border border-[#E8E8E6] focus:border-[#1A1A1A] focus:ring-2 focus:ring-[#1A1A1A]/10 transition-all shadow-sm"
                 />
               </div>
               <div>
@@ -535,7 +570,7 @@ export default function ProfilePage() {
                   value={preferences.bottomSize}
                   onChange={(e) => setPreferences({ ...preferences, bottomSize: e.target.value })}
                   placeholder="28, 30, 32"
-                  className="mt-2 rounded-lg border border-[#E5E5E5] focus:border-[#1A1A1A]"
+                  className="mt-2 rounded-full border border-[#E8E8E6] focus:border-[#1A1A1A] focus:ring-2 focus:ring-[#1A1A1A]/10 transition-all shadow-sm"
                 />
               </div>
             </div>
@@ -547,80 +582,45 @@ export default function ProfilePage() {
                   onChange={(e) => setPreferences({ ...preferences, budgetMin: e.target.value })}
                   placeholder="Min ($)"
                   type="number"
-                  className="rounded-lg border border-[#E5E5E5] focus:border-[#1A1A1A]"
+                  className="rounded-full border border-[#E8E8E6] focus:border-[#1A1A1A] focus:ring-2 focus:ring-[#1A1A1A]/10 transition-all shadow-sm"
                 />
                 <Input
                   value={preferences.budgetMax}
                   onChange={(e) => setPreferences({ ...preferences, budgetMax: e.target.value })}
                   placeholder="Max ($)"
                   type="number"
-                  className="rounded-lg border border-[#E5E5E5] focus:border-[#1A1A1A]"
+                  className="rounded-full border border-[#E8E8E6] focus:border-[#1A1A1A] focus:ring-2 focus:ring-[#1A1A1A]/10 transition-all shadow-sm"
                 />
               </div>
             </div>
             <button 
               onClick={handleSavePreferences} 
               disabled={saving} 
-              className="rounded-lg bg-[#1A1A1A] px-4 py-2.5 text-sm font-medium text-white hover:bg-[#2A2A2A] transition-colors disabled:opacity-50"
+              className="relative rounded-xl bg-gradient-to-r from-[#8B5CF6]/90 to-[#7C3AED]/90 px-5 py-2.5 text-sm font-medium text-white transition-all disabled:opacity-50 shadow-lg hover:shadow-xl hover:-translate-y-0.5 overflow-hidden group"
+              style={{
+                background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.9), rgba(124, 58, 237, 0.9))',
+              }}
             >
+              <div className="absolute inset-0 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                style={{
+                  background: 'linear-gradient(90deg, #8B5CF6, #7C3AED, #8B5CF6)',
+                  backgroundSize: '200% 100%',
+                  animation: 'shimmer 2s linear infinite'
+                }}
+              ></div>
               {saving ? (
                 <>
-                  <Loader2 className="inline mr-2 h-3 w-3 animate-spin" />
-                  Saving...
+                  <Loader2 className="inline mr-2 h-3 w-3 animate-spin relative z-10" />
+                  <span className="relative z-10">Saving...</span>
                 </>
               ) : (
-                'Save Changes'
+                <span className="relative z-10">Save Changes</span>
               )}
             </button>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm border border-[#E5E5E5] p-4">
-          <h2 className="text-lg font-bold text-[#1A1A1A] mb-1 flex items-center gap-2">
-            <Bell className="h-4 w-4" />
-            Notifications
-          </h2>
-          <p className="text-xs text-[#6B6B6B] mb-4">Manage your notification preferences</p>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-[#1A1A1A]">Email notifications</p>
-                <p className="text-xs text-[#6B6B6B]">Receive emails about new trends</p>
-              </div>
-              <button className="rounded-lg bg-white border border-[#E5E5E5] px-3 py-1.5 text-xs font-medium text-[#1A1A1A] hover:bg-[#FAFAFA] transition-colors">
-                Toggle
-              </button>
-            </div>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-[#1A1A1A]">Push notifications</p>
-                <p className="text-xs text-[#6B6B6B]">Get notified about new recommendations</p>
-              </div>
-              <button className="rounded-lg bg-white border border-[#E5E5E5] px-3 py-1.5 text-xs font-medium text-[#1A1A1A] hover:bg-[#FAFAFA] transition-colors">
-                Toggle
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-xl shadow-sm border border-[#E5E5E5] p-4">
-          <h2 className="text-lg font-bold text-[#1A1A1A] mb-1 flex items-center gap-2">
-            <Shield className="h-4 w-4" />
-            Account
-          </h2>
-          <p className="text-xs text-[#6B6B6B] mb-4">Manage your account settings</p>
-          <div className="space-y-2">
-            <button className="w-full rounded-lg bg-white border border-[#E5E5E5] px-4 py-2.5 text-sm font-medium text-[#1A1A1A] hover:bg-[#FAFAFA] transition-colors text-left">
-              Change Password
-            </button>
-            <button className="w-full rounded-lg bg-white border border-[#E5E5E5] px-4 py-2.5 text-sm font-medium text-[#1A1A1A] hover:bg-[#FAFAFA] transition-colors text-left">
-              Download My Data
-            </button>
-            <button className="w-full rounded-lg bg-white border border-red-200 px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors text-left">
-              Delete Account
-            </button>
-          </div>
-        </div>
+      </div>
       </div>
     </div>
     <Navigation />

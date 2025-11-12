@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
-import { conversations, messages, users } from '@/lib/db/schema';
-import { eq, desc, and } from 'drizzle-orm';
+import { conversations, messages, users, products } from '@/lib/db/schema';
+import { eq, desc, and, or, ilike, sql } from 'drizzle-orm';
 import { generateOutfitTryOn, type OutfitItem } from '@/services/tryon';
 import { GoogleGenAI } from '@google/genai';
 
@@ -172,7 +172,11 @@ export async function POST(req: NextRequest) {
     if (productRequests.length > 0) {
       // Search for products using SerpAPI (fallback to internal products if missing key)
       const serpKey = process.env.SERPAPI_API_KEY;
-      console.log('[CHAT] SERPAPI_API_KEY present:', !!serpKey);
+      console.log('[CHAT] SERPAPI_API_KEY check:');
+      console.log('[CHAT]   - Key exists:', 'SERPAPI_API_KEY' in process.env);
+      console.log('[CHAT]   - Value present:', !!serpKey);
+      console.log('[CHAT]   - Value length:', serpKey ? serpKey.length : 0);
+      console.log('[CHAT]   - Value preview:', serpKey ? `${serpKey.substring(0, 10)}...` : 'undefined');
 
       // Helper: run a single search query string through /api/search/products
       const runSearch = async (q: string): Promise<any[]> => {
@@ -242,8 +246,38 @@ export async function POST(req: NextRequest) {
         // If no products from SerpAPI, fallback to internal
         if (products.length === 0) {
           console.log('[CHAT] Falling back to internal products');
-          // Direct database query would be better, but for now we import the logic inline
-          // For simplicity, return empty array - the user will get the "no matches" message
+          try {
+            const searchTerm = `%${q.trim()}%`;
+            const internalProducts = await db
+              .select()
+              .from(products)
+              .where(
+                or(
+                  ilike(products.name, searchTerm),
+                  ilike(products.brand, searchTerm),
+                  ilike(products.category, searchTerm),
+                  sql`COALESCE(${products.description}, '') ILIKE ${searchTerm}`
+                )
+              )
+              .limit(10);
+            
+            console.log(`[CHAT] Found ${internalProducts.length} internal products`);
+            
+            products = internalProducts.map((p) => ({
+              id: p.id,
+              name: p.name,
+              brand: p.brand,
+              price: parseFloat(p.price),
+              currency: p.currency,
+              retailer: p.retailer,
+              category: p.category,
+              imageUrl: p.imageUrl,
+              productUrl: p.productUrl,
+              isExternal: false,
+            }));
+          } catch (err) {
+            console.error('[CHAT] Internal products query error:', err instanceof Error ? err.message : err);
+          }
         }
         return products;
       };
@@ -458,8 +492,19 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error) {
-    console.error('Chat API error:', error);
-    return NextResponse.json({ error: 'Failed to process chat message' }, { status: 500 });
+    console.error('[CHAT] API error:', error);
+    if (error instanceof Error) {
+      console.error('[CHAT] Error message:', error.message);
+      console.error('[CHAT] Error stack:', error.stack);
+    }
+    // Log more details for debugging
+    if (error && typeof error === 'object') {
+      console.error('[CHAT] Error details:', JSON.stringify(error, Object.getOwnPropertyNames(error)));
+    }
+    return NextResponse.json({ 
+      error: 'Failed to process chat message',
+      details: error instanceof Error ? error.message : 'Unknown error'
+    }, { status: 500 });
   }
 }
 

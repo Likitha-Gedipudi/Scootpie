@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth, currentUser } from '@clerk/nextjs/server';
+import { auth } from '@clerk/nextjs/server';
 import { db } from '@/lib/db';
-import { conversations, messages, users, photos } from '@/lib/db/schema';
-import { eq, desc } from 'drizzle-orm';
+import { conversations, messages, users } from '@/lib/db/schema';
+import { eq, desc, and } from 'drizzle-orm';
 import { generateOutfitTryOn, type OutfitItem } from '@/services/tryon';
 import { GoogleGenAI } from '@google/genai';
 
@@ -81,6 +81,8 @@ export async function POST(req: NextRequest) {
       role: 'user',
       content: message,
     });
+    // Touch conversation's lastMessageAt as soon as we get a user message
+    await db.update(conversations).set({ lastMessageAt: new Date() }).where(eq(conversations.id, conversation.id));
 
     // Parse user message for product requests - handle MULTIPLE items in one message
     let productRequests: Array<{query: string; brand?: string; color?: string; category?: string}> = [];
@@ -433,7 +435,14 @@ export async function POST(req: NextRequest) {
       role: 'assistant',
       content: responseText,
       productRecommendations: mergedItems.length > 0 ? mergedItems.map(i => i.name) : undefined,
+      outfitImageUrl: outfitImageUrl,
+      outfitProducts: mergedItems.length > 0 ? mergedItems : undefined,
     }).returning();
+
+    // Update conversation lastMessageAt based on assistant message timestamp
+    await db.update(conversations)
+      .set({ lastMessageAt: assistantMessage.createdAt })
+      .where(eq(conversations.id, conversation.id));
 
     return NextResponse.json({
       success: true,
@@ -463,6 +472,7 @@ export async function GET(req: NextRequest) {
 
     const searchParams = req.nextUrl.searchParams;
     const conversationId = searchParams.get('conversationId');
+    const all = searchParams.get('all') === 'true';
 
     const user = await db.query.users.findFirst({
       where: eq(users.clerkId, userId),
@@ -470,6 +480,14 @@ export async function GET(req: NextRequest) {
 
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    if (all) {
+      const convs = await db.query.conversations.findMany({
+        where: eq(conversations.userId, user.id),
+        orderBy: [desc(conversations.lastMessageAt)],
+      });
+      return NextResponse.json({ success: true, conversations: convs });
     }
 
     let conversation;
@@ -595,18 +613,52 @@ Fields:
 Return ONLY valid JSON. No prose.`;
 
     const res = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-2.0-flash-exp',
       contents: [
         { role: 'user', parts: [{ text: system }, { text: `User: ${message}` }] },
       ],
     });
 
-    const text = (res as any)?.response?.text?.() || (res as any)?.text?.() || '';
+    // Extract text from candidates -> content.parts[0].text per @google/genai response shape
+    const text = (res as any)?.candidates?.[0]?.content?.parts?.[0]?.text || '';
     const jsonStr = (typeof text === 'string' ? text : '').trim().replace(/^```(json)?/i, '').replace(/```$/,'').trim();
     const parsed = JSON.parse(jsonStr);
     return parsed;
   } catch (err) {
     return Promise.reject(err);
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+    const searchParams = req.nextUrl.searchParams;
+    const conversationId = searchParams.get('conversationId');
+    if (!conversationId) {
+      return NextResponse.json({ error: 'conversationId is required' }, { status: 400 });
+    }
+
+    // Ensure the conversation belongs to the user
+    const user = await db.query.users.findFirst({ where: eq(users.clerkId, userId) });
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const conv = await db.query.conversations.findFirst({
+      where: and(eq(conversations.id, conversationId), eq(conversations.userId, user.id)),
+    });
+    if (!conv) {
+      return NextResponse.json({ error: 'Conversation not found' }, { status: 404 });
+    }
+
+    await db.delete(conversations).where(eq(conversations.id, conversationId));
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Delete chat error:', error);
+    return NextResponse.json({ error: 'Failed to delete chat' }, { status: 500 });
   }
 }
 

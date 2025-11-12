@@ -1,6 +1,7 @@
 import { GoogleGenAI } from '@google/genai';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
+import sharp from 'sharp';
 
 // Lazy initialization function - ensures ai is created with proper env vars
 function getGeminiAI(): GoogleGenAI {
@@ -40,6 +41,28 @@ export interface OutfitItem {
   category?: string;
 }
 
+async function resizeIfLarge(buffer: Buffer, targetMax = 1024): Promise<{ mimeType: string; data: string }> {
+  try {
+    const img = sharp(buffer);
+    const meta = await img.metadata();
+    const w = meta.width || 0;
+    const h = meta.height || 0;
+    const needsResize = w > targetMax || h > targetMax;
+    const pipeline = needsResize ? img.resize({ width: w > h ? targetMax : undefined, height: h >= w ? targetMax : undefined, fit: 'inside', withoutEnlargement: true }) : img;
+    // Always output JPEG to reduce size and avoid transparency artifacts in model inputs
+    const out = await pipeline.jpeg({ quality: 85 }).toBuffer();
+    return { mimeType: 'image/jpeg', data: out.toString('base64') };
+  } catch {
+    // If sharp fails, fall back to original buffer (as jpeg best-effort)
+    try {
+      const out = await sharp(buffer).jpeg({ quality: 85 }).toBuffer();
+      return { mimeType: 'image/jpeg', data: out.toString('base64') };
+    } catch {
+      return { mimeType: 'image/jpeg', data: buffer.toString('base64') };
+    }
+  }
+}
+
 async function imageToBase64(url: string): Promise<{ mimeType: string; data: string }> {
   try {
     // Handle data URLs (base64 encoded images) directly
@@ -56,19 +79,24 @@ async function imageToBase64(url: string): Promise<{ mimeType: string; data: str
         throw new Error(`Invalid data URL MIME type: ${mimeType}. Expected image/*`);
       }
       
-      return {
-        mimeType: mimeType,
-        data: base64Data,
-      };
+      // Downscale if large
+      const buffer = Buffer.from(base64Data, 'base64');
+      const resized = await resizeIfLarge(buffer);
+      return resized;
     }
     
     // Handle local file paths (from Next.js public folder)
     if (url.startsWith('/')) {
-      // Remove leading slash and construct path to public folder
-      const filePath = join(process.cwd(), 'public', url);
+      // Remove leading slash(s) and construct path to public folder
+      const relPath = url.replace(/^\/+/, '');
+      const filePath = join(process.cwd(), 'public', relPath);
       
       // Read the file
       const fileBuffer = await readFile(filePath);
+      
+      // Downscale if large and normalize to jpeg
+      const resized = await resizeIfLarge(Buffer.from(fileBuffer));
+      return resized;
       
       // Determine MIME type from file extension
       const ext = url.toLowerCase().split('.').pop();
@@ -149,6 +177,9 @@ async function imageToBase64(url: string): Promise<{ mimeType: string; data: str
     if (buffer.byteLength === 0) {
       throw new Error('Received empty image data');
     }
+
+    // Downscale if large and normalize
+    const resized = await resizeIfLarge(Buffer.from(buffer));
     
     // Validate content type is actually an image
     const contentType = response.headers.get('content-type') || '';
@@ -258,10 +289,16 @@ Generate the virtual try-on image now.`,
     ];
 
     // Use the official API structure from Google docs
+    // Wrap parts into a single user content entry
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
-      contents: prompt,
-    });
+      contents: [
+        {
+          role: 'user',
+          parts: prompt,
+        },
+      ],
+    } as any);
 
     // Parse response - structure is response.candidates[0].content.parts
     if (!response.candidates || response.candidates.length === 0) {
@@ -292,12 +329,14 @@ Generate the virtual try-on image now.`,
     }
     
     // Iterate through parts to find image data
+    let firstText: string | null = null;
     for (let i = 0; i < parts.length; i++) {
       const part = parts[i];
       
       // Check for text response (Gemini sometimes refuses or provides text instead of image)
       if ('text' in part && (part as any).text) {
-        const textResponse = (part as any).text;
+        const textResponse = (part as any).text as string;
+        if (!firstText) firstText = textResponse;
         console.warn(`Gemini returned text instead of image: ${textResponse.substring(0, 150)}...`);
         // Continue checking other parts in case there's also an image
       }
@@ -328,11 +367,62 @@ Generate the virtual try-on image now.`,
           imageUrl: dataUrl,
         };
       }
+
+      // Some responses may reference a hosted file
+      if ('fileData' in part && (part as any).fileData?.fileUri) {
+        const fileUri = (part as any).fileData.fileUri as string;
+        const mimeType = (part as any).fileData.mimeType || 'image/png';
+        if (fileUri.startsWith('http')) {
+          try {
+            const res = await fetch(fileUri);
+            if (res.ok) {
+              const buf = await res.arrayBuffer();
+              const base64 = Buffer.from(buf).toString('base64');
+              const dataUrl = `data:${mimeType};base64,${base64}`;
+              return { success: true, imageData: base64, imageUrl: dataUrl };
+            }
+          } catch (e) {
+            console.warn('Failed to fetch fileUri image:', e);
+          }
+        }
+      }
     }
     
-    // If we get here, no image was found in the parts
-    console.error('No image data found in response. Gemini may have refused to generate the image or returned only text.');
+    // Retry once with a stricter output directive
+    console.warn('No image in first response. Retrying with responseMimeType=image/png and stricter instruction...');
+    const retryPrompt = [...prompt];
+    const lastTextIdx = retryPrompt.findIndex((p: any) => 'text' in p);
+    if (lastTextIdx >= 0) {
+      (retryPrompt[lastTextIdx] as any).text += '\nReturn only an image as output. Do not include any text.';
+    } else {
+      retryPrompt.push({ text: 'Return only an image as output. Do not include any text.' } as any);
+    }
 
+    const retry = await ai.models.generateContent({
+      model: 'gemini-2.5-flash-image',
+      contents: [
+        { role: 'user', parts: retryPrompt },
+      ],
+    } as any);
+
+    const retryParts = retry?.candidates?.[0]?.content?.parts || [];
+    for (const part of retryParts) {
+      if ('inlineData' in part && (part as any).inlineData) {
+        const inlineData = (part as any).inlineData;
+        const base64Image = inlineData.data;
+        const mimeType = inlineData.mimeType || 'image/png';
+        const dataUrl = `data:${mimeType};base64,${base64Image}`;
+        return { success: true, imageData: base64Image, imageUrl: dataUrl };
+      }
+      if ('data' in part && (part as any).data) {
+        const base64Image = (part as any).data;
+        const mimeType = (part as any).mimeType || 'image/png';
+        const dataUrl = `data:${mimeType};base64,${base64Image}`;
+        return { success: true, imageData: base64Image, imageUrl: dataUrl };
+      }
+    }
+
+    console.error('No image data found after retry. First text snippet:', firstText?.substring(0, 150));
     return {
       success: false,
       error: 'No image generated in response. The model returned text or an unexpected format.',

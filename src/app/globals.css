@@ -1,44 +1,71 @@
 @import "tailwindcss";
 
 @theme {
-  --color-background: #FAFAFA;
+  /* Minimal Elegant Theme */
+  --color-background: #F5F5F5;
   --color-foreground: #1A1A1A;
   --color-card: #FFFFFF;
   --color-card-foreground: #1A1A1A;
   --color-popover: #FFFFFF;
   --color-popover-foreground: #1A1A1A;
-  --color-primary: #1A1A1A;
+  
+  /* Primary: Dark Charcoal */
+  --color-primary: #2D2D2D;
   --color-primary-foreground: #FFFFFF;
-  --color-secondary: #F5F5F5;
+  --color-primary-dark: #1A1A1A;
+  --color-primary-light: #4A4A4A;
+  
+  /* Secondary: Light Gray */
+  --color-secondary: #F9F9F9;
   --color-secondary-foreground: #1A1A1A;
-  --color-muted: #F5F5F5;
-  --color-muted-foreground: #6B6B6B;
-  --color-accent: #F5F5F5;
-  --color-accent-foreground: #1A1A1A;
-  --color-destructive: #EF4444;
+  
+  /* Accent: Soft Terracotta/Rust */
+  --color-accent: #C65D3B;
+  --color-accent-foreground: #FFFFFF;
+  --color-accent-dark: #B04E2C;
+  --color-accent-light: #D97656;
+  
+  /* Neutrals */
+  --color-muted: #F0F0F0;
+  --color-muted-foreground: #666666;
+  --color-destructive: #DC2626;
   --color-destructive-foreground: #FFFFFF;
+  
+  /* Borders */
   --color-border: #E5E5E5;
-  --color-input: #E5E5E5;
-  --color-ring: #1A1A1A;
-  --radius-lg: 0.75rem;
-  --radius-md: 0.5rem;
-  --radius-sm: 0.375rem;
-  --font-sans: var(--font-inter);
+  --color-border-light: #F0F0F0;
+  --color-input: #FAFAFA;
+  --color-ring: #2D2D2D;
+  
+  /* Border Radius - Pill shaped */
+  --radius-lg: 2rem;
+  --radius-md: 1.5rem;
+  --radius-sm: 1rem;
+  
+  /* Typography */
+  --font-serif: var(--font-playfair);
+  --font-sans: var(--font-montserrat);
 }
 
 body {
-  background-color: #FAFAFA;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  letter-spacing: 0.02em;
 }
 
 * {
   border-color: var(--color-border);
 }
 
-body {
-  background-color: var(--color-background);
-  color: var(--color-foreground);
+/* Typography Enhancements */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  letter-spacing: 0.03em;
 }
 
+/* Scrollbar Styling */
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
@@ -46,4 +73,54 @@ body {
 .scrollbar-hide {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* Luxury Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-muted);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted-foreground);
+}
+
+/* Elegant Transitions */
+* {
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Soft Shadow Utilities */
+.shadow-luxury {
+  box-shadow: 0 2px 8px rgba(44, 44, 44, 0.04), 0 1px 4px rgba(44, 44, 44, 0.02);
+}
+
+.shadow-luxury-lg {
+  box-shadow: 0 4px 16px rgba(44, 44, 44, 0.06), 0 2px 8px rgba(44, 44, 44, 0.03);
+}
+
+.shadow-soft {
+  box-shadow: 0 1px 3px rgba(44, 44, 44, 0.03);
+}
+
+/* Soft Gradients */
+.gradient-soft {
+  background: linear-gradient(135deg, #FAFAFA 0%, #F5F3F0 50%, #FAFAFA 100%);
+}
+
+.gradient-sage {
+  background: linear-gradient(135deg, #B5C4B3 0%, #9CAF9A 100%);
+}
+
+.gradient-rose {
+  background: linear-gradient(135deg, #F5CDD1 0%, #E8B4B8 100%);
 }

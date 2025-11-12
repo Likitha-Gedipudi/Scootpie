@@ -96,12 +96,13 @@ export async function POST(req: NextRequest) {
         console.error(`Try-on generation failed for product ${product.id}:`, result.error);
         return NextResponse.json(
           { 
+            success: false,
             error: result.error || 'Try-on generation failed',
             productId: product.id,
             productImageUrl: product.imageUrl,
             details: 'The product image may be invalid or the API refused to generate the try-on.',
           },
-          { status: 500 }
+          { status: 200 }
         );
       }
     } catch (error) {
@@ -123,10 +124,12 @@ export async function POST(req: NextRequest) {
       
       return NextResponse.json(
         { 
+          success: false,
           error: `Try-on generation failed: ${errorMessage}`,
           productId: product.id,
+          productImageUrl: product.imageUrl,
         },
-        { status: 500 }
+        { status: 200 }
       );
     }
 
@@ -177,8 +180,8 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Error generating try-on:', error);
     return NextResponse.json(
-      { error: 'Failed to generate try-on' },
-      { status: 500 }
+      { success: false, error: 'Failed to generate try-on' },
+      { status: 200 }
     );
   }
 }

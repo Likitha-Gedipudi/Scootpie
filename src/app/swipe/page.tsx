@@ -94,16 +94,22 @@ export default function SwipePage() {
         }
       } else {
         // Use cached/DB-based generation
+        console.log('[SWIPE] Generating try-on for product:', productId);
         const response = await fetch('/api/tryon/generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ productId }),
         });
+        console.log('[SWIPE] Try-on API response status:', response.status);
         if (response.ok) {
           const data = await response.json();
+          console.log('[SWIPE] Try-on API response data:', data);
           if (data.success && data.imageUrl) {
             imageUrl = data.imageUrl;
           }
+        } else {
+          const errorText = await response.text();
+          console.error('[SWIPE] Try-on API error:', response.status, errorText);
         }
       }
 
@@ -141,26 +147,28 @@ export default function SwipePage() {
     loadProducts();
   }, [setSessionId, fetchUserPhoto]);
 
-  useEffect(() => {
-    if (products.length > 0 && userPhotoUrl) {
-      // Generate try-ons for initial products
-      pregenerateTryOns(products, 0);
-    }
-  }, [products, userPhotoUrl, pregenerateTryOns]);
+  // DISABLED: Auto try-on generation to avoid API quota exhaustion
+  // Users can manually generate try-ons by tapping a button on the card instead
+  // useEffect(() => {
+  //   if (products.length > 0 && userPhotoUrl) {
+  //     // Generate try-ons for initial products
+  //     pregenerateTryOns(products, 0);
+  //   }
+  // }, [products, userPhotoUrl, pregenerateTryOns]);
 
-  // Pre-generate when approaching end of current batch
-  useEffect(() => {
-    if (products.length > 0 && userPhotoUrl && currentIndex > 0) {
-      pregenerateTryOns(products, currentIndex);
-    }
-  }, [currentIndex, products, userPhotoUrl, pregenerateTryOns]);
+  // // Pre-generate when approaching end of current batch
+  // useEffect(() => {
+  //   if (products.length > 0 && userPhotoUrl && currentIndex > 0) {
+  //     pregenerateTryOns(products, currentIndex);
+  //   }
+  // }, [currentIndex, products, userPhotoUrl, pregenerateTryOns]);
 
   const loadProducts = async (search?: string) => {
     setLoading(true);
     try {
       const url = search && search.trim().length > 0
         ? `/api/search/products?q=${encodeURIComponent(search.trim())}&count=15`
-        : '/api/products?count=15';
+        : `/api/search/products?q=${encodeURIComponent('trending fashion apparel')}&count=15`;
       const response = await fetch(url);
       if (response.ok) {
         const data = await response.json();
@@ -191,14 +199,18 @@ export default function SwipePage() {
 
     // Save swipe to database
     try {
+      const likedProduct = products[currentIndex];
+      const likedTryOn = tryOnImages.get(likedProduct.id);
       await fetch('/api/swipes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          productId: products[currentIndex].id,
+          productId: likedProduct.id,
           direction,
           sessionId,
           cardPosition: currentIndex,
+          product: likedProduct,
+          tryOnImageUrl: likedTryOn,
         }),
       });
     } catch (error) {
@@ -208,10 +220,10 @@ export default function SwipePage() {
     const nextIndex = currentIndex + 1;
     setCurrentIndex(nextIndex);
 
-    // Pre-generate try-ons for upcoming products
-    if (userPhotoUrl && nextIndex < products.length) {
-      pregenerateTryOns(products, nextIndex);
-    }
+    // DISABLED: Pre-generate try-ons for upcoming products (to avoid API quota)
+    // if (userPhotoUrl && nextIndex < products.length) {
+    //   pregenerateTryOns(products, nextIndex);
+    // }
 
     // Load more products when running low
     if (nextIndex >= products.length - 5) {
@@ -235,12 +247,26 @@ export default function SwipePage() {
     handleSwipe(direction);
   };
 
+  // Compute current product and try-on state before any early returns
+  const currentProduct = products[currentIndex];
+  const remainingCards = products.length - currentIndex;
+  const currentTryOnUrl = currentProduct ? tryOnImages.get(currentProduct.id) : undefined;
+  const isGeneratingTryOn = currentProduct ? generatingTryOns.has(currentProduct.id) : false;
+
+  // Auto-generate try-on for the current card (quota-friendly: current item only)
+  useEffect(() => {
+    if (currentProduct && userPhotoUrl && !currentTryOnUrl && !isGeneratingTryOn) {
+      generateTryOn(currentProduct.id);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentProduct?.id, userPhotoUrl]);
+
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#FAFAFA]">
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-[#FAF8F5] via-[#F5F1E8] to-[#FAF8F5]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#1A1A1A] mx-auto mb-4"></div>
-          <p className="text-lg text-[#6B6B6B]">Loading your personalized recommendations...</p>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#8B1A1A] mx-auto mb-4"></div>
+          <p className="text-lg text-[#6B6459] tracking-wide">Loading your personalized recommendations...</p>
         </div>
       </div>
     );
@@ -248,14 +274,14 @@ export default function SwipePage() {
 
   if (!hasPhoto) {
     return (
-      <div className="flex h-screen items-center justify-center bg-[#FAFAFA] pb-16 lg:pb-0 lg:pl-72">
+      <div className="flex h-screen items-center justify-center bg-gradient-to-br from-[#FAF8F5] via-[#F5F1E8] to-[#FAF8F5] pb-16 lg:pb-0 lg:pl-72">
         <div className="text-center max-w-md px-4">
-          <div className="bg-white rounded-xl shadow-sm border border-[#E5E5E5] p-8">
-            <h2 className="text-xl font-bold text-[#1A1A1A] mb-2">No Photos Found</h2>
-            <p className="text-[#6B6B6B] mb-6">Please upload at least one photo to enable virtual try-on.</p>
+          <div className="bg-white shadow-luxury-lg border border-[#D9D0C1] p-8">
+            <h2 className="text-2xl font-serif font-bold text-[#1C1410] mb-3 tracking-wide">No Photos Found</h2>
+            <p className="text-[#6B6459] mb-6 tracking-wide">Please upload at least one photo to enable virtual try-on.</p>
             <a 
               href="/profile" 
-              className="inline-block rounded-lg bg-[#1A1A1A] px-6 py-3 text-sm font-medium text-white hover:bg-[#2A2A2A] transition-colors"
+              className="inline-block bg-gradient-to-r from-[#8B1A1A] to-[#5C1010] px-8 py-3 text-sm font-semibold text-[#FAF8F5] hover:from-[#5C1010] hover:to-[#8B1A1A] transition-all duration-300 shadow-luxury uppercase tracking-widest border border-[#D4AF37]/20"
             >
               Upload Photos
             </a>
@@ -265,19 +291,14 @@ export default function SwipePage() {
     );
   }
 
-  const currentProduct = products[currentIndex];
-  const remainingCards = products.length - currentIndex;
-  const currentTryOnUrl = currentProduct ? tryOnImages.get(currentProduct.id) : undefined;
-  const isGeneratingTryOn = currentProduct ? generatingTryOns.has(currentProduct.id) : false;
-
   return (
     <>
-    <div className="flex flex-col h-screen bg-[#FAFAFA] pb-16 lg:pb-0 lg:pl-72">
+    <div className="flex flex-col h-screen bg-gradient-to-br from-[#FAF8F5] via-[#F5F1E8] to-[#FAF8F5] pb-16 lg:pb-0 lg:pl-72">
       {/* Desktop Header */}
-      <div className="hidden lg:flex items-center justify-between px-6 py-6">
+      <div className="hidden lg:flex items-center justify-between px-8 py-8 border-b border-[#D9D0C1] bg-white/50 backdrop-blur-sm">
         <div className="flex-1 pr-6">
-          <h1 className="text-2xl font-bold text-[#1A1A1A] mb-1">Discover Fashion</h1>
-          <p className="text-sm text-[#6B6B6B]">Swipe to find your style</p>
+          <h1 className="text-3xl font-serif font-bold text-[#1C1410] mb-2 tracking-wide">Discover Fashion</h1>
+          <p className="text-sm text-[#6B6459] tracking-wide">Swipe to curate your style</p>
         </div>
         <div className="flex items-center gap-3">
           <form
@@ -291,27 +312,27 @@ export default function SwipePage() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search products (e.g., red jacket)"
-              className="border border-[#E5E5E5] rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]"
+              placeholder="Search luxury fashion..."
+              className="border border-[#D9D0C1] bg-white/90 px-4 py-2 text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#8B1A1A] focus:border-[#D4AF37]/50 transition-all"
             />
             <button
               type="submit"
-              className="rounded-lg bg-[#1A1A1A] px-4 py-1.5 text-sm font-medium text-white hover:bg-[#2A2A2A] transition-colors"
+              className="bg-gradient-to-r from-[#8B1A1A] to-[#5C1010] px-5 py-2 text-sm font-semibold text-[#FAF8F5] hover:from-[#5C1010] hover:to-[#8B1A1A] transition-all duration-300 shadow-luxury uppercase tracking-widest border border-[#D4AF37]/20"
             >
               Search
             </button>
           </form>
-          <div className="rounded-lg bg-white border border-[#E5E5E5] px-4 py-2 text-sm font-medium text-[#1A1A1A]">
-            {remainingCards} cards remaining
+          <div className="bg-white/90 border border-[#D9D0C1] px-5 py-2.5 text-sm font-medium text-[#1C1410] shadow-luxury tracking-wide">
+            {remainingCards} remaining
           </div>
         </div>
       </div>
 
       {/* Mobile Header */}
-      <div className="lg:hidden px-4 py-4 space-y-3">
+      <div className="lg:hidden px-4 py-4 space-y-3 border-b border-[#D9D0C1] bg-white/50 backdrop-blur-sm">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold text-[#1A1A1A]">Discover</h1>
-          <div className="rounded-lg bg-white border border-[#E5E5E5] px-3 py-1.5 text-xs font-medium text-[#1A1A1A]">
+          <h1 className="text-2xl font-serif font-bold text-[#1C1410] tracking-wide">Discover</h1>
+          <div className="bg-white/90 border border-[#D9D0C1] px-3 py-2 text-xs font-semibold text-[#1C1410] shadow-luxury uppercase tracking-wider">
             {remainingCards} left
           </div>
         </div>
@@ -326,12 +347,12 @@ export default function SwipePage() {
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search products"
-            className="flex-1 border border-[#E5E5E5] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#1A1A1A]"
+            placeholder="Search fashion"
+            className="flex-1 border border-[#D9D0C1] bg-white/90 px-4 py-2 text-sm tracking-wide focus:outline-none focus:ring-2 focus:ring-[#8B1A1A] focus:border-[#D4AF37]/50 transition-all"
           />
           <button
             type="submit"
-            className="rounded-lg bg-[#1A1A1A] px-3 py-2 text-xs font-medium text-white hover:bg-[#2A2A2A] transition-colors"
+            className="bg-gradient-to-r from-[#8B1A1A] to-[#5C1010] px-4 py-2 text-xs font-semibold text-[#FAF8F5] hover:from-[#5C1010] hover:to-[#8B1A1A] transition-all duration-300 shadow-luxury uppercase tracking-widest border border-[#D4AF37]/20"
           >
             Go
           </button>
@@ -354,6 +375,7 @@ export default function SwipePage() {
                 onSwipe={handleSwipe}
                 onTap={() => handleCardTap(currentProduct)}
                 isLoading={isGeneratingTryOn}
+                onGenerateTryOn={() => generateTryOn(currentProduct.id)}
               />
             </motion.div>
           )}
@@ -361,12 +383,12 @@ export default function SwipePage() {
 
         {!currentProduct && (
           <div className="flex flex-col items-center justify-center h-full">
-            <RotateCcw className="h-16 w-16 text-[#6B6B6B] mb-4" />
-            <h2 className="text-xl font-bold text-[#1A1A1A] mb-2">No more cards!</h2>
-            <p className="text-[#6B6B6B] mb-6">You've seen all available items</p>
+            <RotateCcw className="h-16 w-16 text-[#6B6459] mb-4" />
+            <h2 className="text-2xl font-serif font-bold text-[#1C1410] mb-3 tracking-wide">No more items</h2>
+            <p className="text-[#6B6459] mb-8 tracking-wide">You've seen all available items</p>
             <button 
               onClick={() => loadProducts(query)} 
-              className="rounded-lg bg-[#1A1A1A] px-6 py-3 text-sm font-medium text-white hover:bg-[#2A2A2A] transition-colors"
+              className="bg-gradient-to-r from-[#8B1A1A] to-[#5C1010] px-8 py-3 text-sm font-semibold text-[#FAF8F5] hover:from-[#5C1010] hover:to-[#8B1A1A] transition-all duration-300 shadow-luxury uppercase tracking-widest border border-[#D4AF37]/20"
             >
               Load More
             </button>
@@ -374,29 +396,29 @@ export default function SwipePage() {
         )}
       </div>
 
-      <div className="flex items-center justify-center gap-4 pb-8 px-4">
+      <div className="flex items-center justify-center gap-6 pb-8 px-4">
         <button
           onClick={() => handleManualSwipe('left')}
-          disabled={!currentProduct}
-          className="h-14 w-14 rounded-full bg-white border border-[#E5E5E5] shadow-sm transition-all hover:shadow-md disabled:opacity-50 flex items-center justify-center"
+          disabled={!currentProduct || isGeneratingTryOn}
+          className="h-14 w-14 rounded-full bg-white/90 border-2 border-[#D9D0C1] shadow-luxury transition-all hover:shadow-luxury-lg hover:border-[#8B1A1A] disabled:opacity-50 flex items-center justify-center group"
         >
-          <X className="h-6 w-6 text-[#1A1A1A]" />
+          <X className="h-6 w-6 text-[#6B6459] group-hover:text-[#8B1A1A] transition-colors" />
         </button>
         
         <button
           onClick={() => handleManualSwipe('up')}
-          disabled={!currentProduct}
-          className="h-16 w-16 rounded-full bg-white border border-[#E5E5E5] shadow-sm transition-all hover:shadow-md disabled:opacity-50 flex items-center justify-center"
+          disabled={!currentProduct || isGeneratingTryOn}
+          className="h-16 w-16 bg-gradient-to-r from-[#D4AF37] to-[#B8941F] border-2 border-white shadow-luxury-lg transition-all hover:scale-105 disabled:opacity-50 flex items-center justify-center group"
         >
-          <Star className="h-7 w-7 text-[#1A1A1A]" />
+          <Star className="h-7 w-7 text-white fill-current" />
         </button>
         
         <button
           onClick={() => handleManualSwipe('right')}
-          disabled={!currentProduct}
-          className="h-14 w-14 rounded-full bg-white border border-[#E5E5E5] shadow-sm transition-all hover:shadow-md disabled:opacity-50 flex items-center justify-center"
+          disabled={!currentProduct || isGeneratingTryOn}
+          className="h-14 w-14 rounded-full bg-gradient-to-r from-[#8B1A1A] to-[#5C1010] border-2 border-[#D4AF37]/30 shadow-luxury transition-all hover:shadow-luxury-lg hover:scale-105 disabled:opacity-50 flex items-center justify-center group"
         >
-          <Heart className="h-6 w-6 text-[#1A1A1A]" />
+          <Heart className="h-6 w-6 text-white fill-current" />
         </button>
       </div>
     </div>

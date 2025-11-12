@@ -1,7 +1,7 @@
 import { pgTable, uuid, varchar, timestamp, boolean, text, decimal, integer, jsonb, vector, unique } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
-export const users = pgTable('users', {
+export const users = pgTable('app_users', {
   id: uuid('id').primaryKey().defaultRandom(),
   clerkId: varchar('clerk_id', { length: 255 }).notNull().unique(),
   email: varchar('email', { length: 255 }).notNull(),
@@ -89,6 +89,19 @@ export const messages = pgTable('messages', {
   role: varchar('role', { length: 20 }).notNull().$type<'user' | 'assistant'>(),
   content: text('content').notNull(),
   productRecommendations: jsonb('product_recommendations').$type<string[]>(),
+  // Persisted virtual try-on image for assistant messages
+  outfitImageUrl: text('outfit_image_url'),
+  // Persisted outfit products/cards for assistant messages
+  outfitProducts: jsonb('outfit_products').$type<Array<{
+    name: string;
+    imageUrl: string;
+    productUrl: string;
+    price?: number;
+    currency?: string;
+    brand?: string;
+    retailer?: string;
+    category?: string;
+  }>>(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
 

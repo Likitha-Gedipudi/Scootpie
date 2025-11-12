@@ -23,6 +23,7 @@ interface Product {
 interface CollectionItem {
   id: string;
   product: Product;
+  tryOnImageUrl?: string | null;
 }
 
 interface Collection {
@@ -187,11 +188,16 @@ export default function CollectionsPage() {
             <div key={item.id} className="group relative rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all bg-white">
               <div className="relative aspect-[3/4]">
                 <Image
-                  src={item.product.imageUrl}
+                  src={item.tryOnImageUrl || item.product.imageUrl}
                   alt={item.product.name}
                   fill
                   className="object-cover"
                 />
+                {item.tryOnImageUrl && (
+                  <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md text-[10px] font-medium text-[#1A1A1A]">
+                    Virtual Try-On
+                  </div>
+                )}
               </div>
               <div className="p-3">
                 <p className="text-sm text-[#1A1A1A] font-medium mb-1 line-clamp-1">{item.product.name}</p>
@@ -203,10 +209,14 @@ export default function CollectionsPage() {
                 <div className="flex gap-2">
                   <button 
                     className="flex-1 rounded-lg bg-white border border-[#E5E5E5] px-3 py-2 text-xs font-medium text-[#1A1A1A] hover:bg-[#FAFAFA] transition-colors flex items-center justify-center gap-1"
-                    onClick={() => window.open(item.product.productUrl, '_blank')}
+                    onClick={() => {
+                      const raw = item.product.productUrl;
+                      const url = raw?.startsWith('http') ? raw : `https://${raw}`;
+                      try { window.open(url, '_blank', 'noopener,noreferrer'); } catch (_) {}
+                    }}
                   >
                     <ExternalLink className="h-3 w-3" />
-                    Buy
+                    View product
                   </button>
                   <button 
                     className="rounded-lg bg-white border border-[#E5E5E5] p-2 hover:bg-[#FAFAFA] transition-colors"
@@ -221,7 +231,7 @@ export default function CollectionsPage() {
         </div>
 
         {selectedCollection && selectedCollection.items.length === 0 && (
-          <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-[#E5E5E5]">
+          <div className="text-center py-16 bg.white rounded-xl shadow-sm border border-[#E5E5E5]">
             <Heart className="mx-auto h-16 w-16 text-[#E5E5E5] mb-4" />
             <h3 className="text-lg font-bold text-[#1A1A1A] mb-2">No items yet</h3>
             <p className="text-[#6B6B6B]">

@@ -29,8 +29,8 @@ export async function POST(req: NextRequest) {
 
     if (!result.success) {
       return NextResponse.json(
-        { error: result.error || 'Try-on generation failed' },
-        { status: 500 }
+        { success: false, error: result.error || 'Try-on generation failed' },
+        { status: 200 }
       );
     }
 

@@ -278,10 +278,12 @@ export async function PUT(req: NextRequest) {
 
     // Build results map from cache
     const results: Record<string, string> = {};
-    const cachedProductIds = new Set(cachedResults.map(c => c.productId));
+    const cachedProductIds = new Set(cachedResults.map(c => c.productId).filter((id): id is string => id !== null));
     
     for (const cached of cachedResults) {
-      results[cached.productId] = cached.generatedImageUrl;
+      if (cached.productId) {
+        results[cached.productId] = cached.generatedImageUrl;
+      }
     }
 
     // Find products that need generation

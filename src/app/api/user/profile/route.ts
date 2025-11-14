@@ -40,14 +40,15 @@ export async function POST(req: NextRequest) {
       console.log('[PROFILE API] Existing preferences:', JSON.stringify(existingUser.preferences, null, 2));
       
       // Clean preferences: remove empty strings and undefined values
-      type CleanPreferences = {
-        gender?: string;
+      type UserPreferences = {
         sizes?: { top?: string; bottom?: string; shoes?: string };
         budgetRange?: [number, number];
+        styleQuizResponses?: Record<string, any>;
+        gender?: 'men' | 'women' | 'unisex' | 'non-binary' | 'prefer-not-to-say';
       };
       
-      const cleanPreferences: CleanPreferences = preferences ? {
-        ...(preferences.gender && preferences.gender.trim() !== '' ? { gender: preferences.gender.trim() } : {}),
+      const cleanPreferences: Partial<UserPreferences> = preferences ? {
+        ...(preferences.gender && preferences.gender.trim() !== '' && ['men', 'women', 'unisex', 'non-binary', 'prefer-not-to-say'].includes(preferences.gender.trim()) ? { gender: preferences.gender.trim() as UserPreferences['gender'] } : {}),
         sizes: preferences.sizes ? {
           ...(preferences.sizes.top && preferences.sizes.top.trim() !== '' ? { top: preferences.sizes.top.trim() } : {}),
           ...(preferences.sizes.bottom && preferences.sizes.bottom.trim() !== '' ? { bottom: preferences.sizes.bottom.trim() } : {}),
@@ -61,7 +62,7 @@ export async function POST(req: NextRequest) {
         delete cleanPreferences.sizes;
       }
       
-      let mergedPreferences = existingUser.preferences || {};
+      let mergedPreferences: Partial<UserPreferences> = existingUser.preferences || {};
       if (Object.keys(cleanPreferences).length > 0) {
         mergedPreferences = {
           ...mergedPreferences,
@@ -74,13 +75,18 @@ export async function POST(req: NextRequest) {
         
         // Clean up merged sizes - remove empty strings
         if (mergedPreferences.sizes) {
-          Object.keys(mergedPreferences.sizes).forEach(key => {
-            if (!mergedPreferences.sizes[key] || mergedPreferences.sizes[key] === '') {
-              delete mergedPreferences.sizes[key];
-            }
-          });
+          const sizes = mergedPreferences.sizes;
+          if (sizes.top && sizes.top === '') {
+            delete sizes.top;
+          }
+          if (sizes.bottom && sizes.bottom === '') {
+            delete sizes.bottom;
+          }
+          if (sizes.shoes && sizes.shoes === '') {
+            delete sizes.shoes;
+          }
           // Remove sizes object if empty
-          if (Object.keys(mergedPreferences.sizes).length === 0) {
+          if (Object.keys(sizes).length === 0) {
             delete mergedPreferences.sizes;
           }
         }
@@ -111,14 +117,15 @@ export async function POST(req: NextRequest) {
       console.log('[PROFILE API] Creating new user with preferences:', JSON.stringify(preferences, null, 2));
       
       // Clean preferences: remove empty strings and undefined values
-      type CleanPreferences = {
-        gender?: string;
+      type UserPreferences = {
         sizes?: { top?: string; bottom?: string; shoes?: string };
         budgetRange?: [number, number];
+        styleQuizResponses?: Record<string, any>;
+        gender?: 'men' | 'women' | 'unisex' | 'non-binary' | 'prefer-not-to-say';
       };
       
-      const cleanPreferences: CleanPreferences = preferences ? {
-        ...(preferences.gender && preferences.gender.trim() !== '' ? { gender: preferences.gender.trim() } : {}),
+      const cleanPreferences: Partial<UserPreferences> = preferences ? {
+        ...(preferences.gender && preferences.gender.trim() !== '' && ['men', 'women', 'unisex', 'non-binary', 'prefer-not-to-say'].includes(preferences.gender.trim()) ? { gender: preferences.gender.trim() as UserPreferences['gender'] } : {}),
         sizes: preferences.sizes ? {
           ...(preferences.sizes.top && preferences.sizes.top.trim() !== '' ? { top: preferences.sizes.top.trim() } : {}),
           ...(preferences.sizes.bottom && preferences.sizes.bottom.trim() !== '' ? { bottom: preferences.sizes.bottom.trim() } : {}),
@@ -167,7 +174,7 @@ export async function POST(req: NextRequest) {
         photoUrlsCount: photoUrls.length,
         existingPhotosCount: existingPhotos.length,
         isExistingUser: !!existingUser,
-        incomingPhotos: photoUrls.map(url => url.substring(0, 100)),
+        incomingPhotos: photoUrls.map((url: string) => url.substring(0, 100)),
         existingPhotos: existingPhotos.map(p => ({ id: p.id, isPrimary: p.isPrimary, url: p.url.substring(0, 100) })),
       });
       
@@ -178,7 +185,7 @@ export async function POST(req: NextRequest) {
         return p.url.startsWith('data:') ? p.url.substring(0, 1000) : p.url;
       }));
       
-      const newPhotoUrls = photoUrls.filter(url => {
+      const newPhotoUrls = photoUrls.filter((url: string) => {
         const signature = url.startsWith('data:') ? url.substring(0, 1000) : url;
         const isDuplicate = existingUrls.has(signature);
         if (isDuplicate) {
